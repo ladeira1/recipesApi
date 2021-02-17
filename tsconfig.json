@@ -24,6 +24,8 @@
       ]
   },
   "include": [
-      "src/**/*", "src/@types"
+    "src/**/*",
+    "src/@types",
+    "__tests__/**/*"
   ]
 }
