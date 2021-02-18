@@ -1,26 +1,14 @@
-import express, { Express } from 'express';
-import './database/connection';
-
+import express from 'express';
 import cors from 'cors';
+import connection from './database/connection';
+
 import routes from './routes';
 
-class App {
-  app: Express;
+connection.create();
 
-  constructor() {
-    this.app = express();
-    this.middlewares();
-    this.routes();
-  }
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(routes);
 
-  middlewares() {
-    this.app.use(cors());
-    this.app.use(express.json());
-  }
-
-  routes() {
-    this.app.use(routes);
-  }
-}
-
-export default new App().app;
+export default app;

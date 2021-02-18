@@ -1,31 +1,30 @@
 {
   "compilerOptions": {
-      "module": "commonjs",
-      "esModuleInterop": true,
-      "strict": true,
-      "strictPropertyInitialization": false,
-      "target": "es2017",
-      "noImplicitAny": true,
-      "moduleResolution": "node",
-      "sourceMap": true,
-      "outDir": "dist",
-      "rootDir": "src",
-      "baseUrl": ".",
-      "experimentalDecorators": true,
-      "emitDecoratorMetadata": true,
-      "paths": {
-          "*": [
-              "node_modules/*"
-          ]
-      },
-      "typeRoots": [
-        "src/@types",
-        "./node_modules/@types"
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "target": "es2017",
+    "noImplicitAny": true,
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "paths": {
+      "*": [
+          "node_modules/*"
       ]
+    },
+    "typeRoots": [
+      "src/@types",
+      "./node_modules/@types"
+    ]
   },
   "include": [
     "src/**/*",
     "src/@types",
     "__tests__/**/*"
-  ]
+  ],
 }

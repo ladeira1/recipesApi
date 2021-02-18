@@ -1,3 +1,5 @@
 import app from './app';
 
-app.listen(3333);
+const server = app.listen(3333);
+
+export default server;
