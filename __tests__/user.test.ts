@@ -136,7 +136,7 @@ describe('Testing User', () => {
     expect(response.text).toContain('Account successfully deleted');
   });
 
-  it('should delete account when authenticated', async () => {
+  it('should not delete account when authenticated', async () => {
     await request(app).post('/user').send({
       name: 'joao',
       email: 'joao@test.com',
