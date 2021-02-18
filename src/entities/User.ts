@@ -18,7 +18,7 @@ export default class User {
     length: 200,
     nullable: true,
   })
-  profileImageUrl: string;
+  profileImageUrl?: string;
 
   @Column({ name: 'password_hash', type: 'varchar', length: 100 })
   password: string;
