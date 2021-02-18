@@ -41,8 +41,8 @@ export default class UserController {
     }
 
     // create user
-    const usersRepository = getRepository(User);
     try {
+      const usersRepository = getRepository(User);
       const user = usersRepository.create({
         name,
         email,
@@ -88,9 +88,8 @@ export default class UserController {
     }
 
     // login
-    const usersRepository = getRepository(User);
-
     try {
+      const usersRepository = getRepository(User);
       const user = await usersRepository.findOne({
         where: { email },
       });
@@ -108,6 +107,16 @@ export default class UserController {
         .json(UserView.renderToken(user, getToken(user.id)));
     } catch (err) {
       return res.status(400).json(UserView.error(err.message));
+    }
+  };
+
+  static delete = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const usersRepository = getRepository(User);
+      await usersRepository.delete({ id: req.userId });
+      return res.status(200).json('Account successfully deleted');
+    } catch (err) {
+      return res.status(401).json(err.message);
     }
   };
 }

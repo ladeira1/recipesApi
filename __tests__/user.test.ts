@@ -110,4 +110,45 @@ describe('Testing User', () => {
     expect(response.status).toEqual(401);
     expect(response.text).toContain('Invalid password');
   });
+
+  // delete account
+  it('should delete account when authenticated', async () => {
+    await request(app).post('/user').send({
+      name: 'joao',
+      email: 'joao@test.com',
+      password: '123123',
+      passwordConfirmation: '123123',
+    });
+
+    const userResponse = await request(app).post('/user/auth').send({
+      email: 'joao@test.com',
+      password: '123123',
+    });
+
+    const response = await request(app)
+      .delete('/user')
+      .set('Authorization', `Bearer ${userResponse.body.token}`);
+
+    console.log('aaaaaaa');
+    console.log(response.text);
+
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('Account successfully deleted');
+  });
+
+  it('should delete account when authenticated', async () => {
+    await request(app).post('/user').send({
+      name: 'joao',
+      email: 'joao@test.com',
+      password: '123123',
+      passwordConfirmation: '123123',
+    });
+
+    const response = await request(app)
+      .delete('/user')
+      .set('Authorization', `Bearer: ${'fails'}`);
+
+    expect(response.status).toBe(401);
+    expect(response.text).toContain('Token does not match Bearer');
+  });
 });

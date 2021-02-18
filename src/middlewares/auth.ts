@@ -24,10 +24,6 @@ const authMiddleware = async (
   }
 
   try {
-    // const decoded: any = await new Promise(() => {
-    //   return jwt.verify(token, authConfig.secret);
-    // });
-
     const decoded: any = jwt.verify(
       token,
       authConfig.secret,
