@@ -6,6 +6,7 @@ import authMiddleware from './middlewares/auth';
 
 const routes = Router();
 
+routes.get('/user/:id', UserController.get);
 routes.post('/user', UserController.create);
 routes.post('/user/auth', UserController.login);
 routes.delete('/user', authMiddleware, UserController.delete);

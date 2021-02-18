@@ -207,4 +207,32 @@ describe('Testing User', () => {
     expect(response.status).toEqual(401);
     expect(response.text).toContain('Passwords must match');
   });
+
+  // get account
+  it('should get account when id is valid', async () => {
+    await request(app).post('/user').send({
+      name: 'joao',
+      email: 'joao@test.com',
+      password: '123123',
+      passwordConfirmation: '123123',
+    });
+
+    const userResponse = await request(app).post('/user/auth').send({
+      email: 'joao@test.com',
+      password: '123123',
+    });
+
+    const response = await request(app).get(`/user/${userResponse.body.id}`);
+
+    expect(response.status).toEqual(200);
+    expect(response.text).toContain(userResponse.body.id);
+    expect(response.text).toContain('joao');
+    expect(response.text).toContain('joao@test.com');
+  });
+
+  it('should not get account when id is invalid', async () => {
+    const response = await request(app).get('/user/sdofdsi');
+
+    expect(response.status).toEqual(401);
+  });
 });

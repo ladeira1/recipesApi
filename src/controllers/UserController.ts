@@ -172,4 +172,20 @@ export default class UserController {
       return res.status(401).json(err.message);
     }
   };
+
+  static get = async (req: Request, res: Response): Promise<Response> => {
+    const { id } = req.params;
+    try {
+      const usersRepository = getRepository(User);
+      const user = await usersRepository.findOne({ where: { id } });
+
+      if (!user) {
+        return res.status(401).json('User not found');
+      }
+
+      return res.status(200).json(UserView.render(user));
+    } catch (err) {
+      return res.status(401).json(err.message);
+    }
+  };
 }
