@@ -1,4 +1,5 @@
 import Recipe from '../entities/Recipe';
+import getImageUrl from '../utils/getImageUrl';
 
 interface RecipeResponse {
   id: number;
@@ -10,7 +11,7 @@ interface RecipeResponse {
   serves: number;
   user: {
     name: string;
-    profileImageUrl: string | null;
+    imageUrl: string | null;
   };
 }
 
@@ -23,14 +24,14 @@ export default class RecipeView {
     return {
       id: recipe.id,
       name: recipe.name,
-      imageUrl: `http://localhost:3333/uploads/${recipe.imageUrl}`,
+      imageUrl: getImageUrl(recipe.imageUrl),
       description: recipe.description,
       ingredients: recipe.ingredients,
       preparationTime: recipe.preparationTime,
       serves: recipe.serves,
       user: {
         name: recipe.user.name,
-        profileImageUrl: recipe.user.profileImageUrl,
+        imageUrl: getImageUrl(recipe.user.profileImageUrl),
       },
     };
   }

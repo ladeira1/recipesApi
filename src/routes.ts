@@ -16,7 +16,12 @@ routes.get('/user/:id', UserController.get);
 routes.post('/user', UserController.create);
 routes.post('/user/auth', UserController.login);
 routes.delete('/user', authMiddleware, UserController.delete);
-routes.put('/user', authMiddleware, UserController.update);
+routes.put(
+  '/user',
+  authMiddleware,
+  upload.single('image'),
+  UserController.update,
+);
 
 // recipe
 routes.post(

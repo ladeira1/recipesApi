@@ -125,6 +125,7 @@ export default class UserController {
   static update = async (req: Request, res: Response): Promise<Response> => {
     // image will be added in the future
     const { name, password, passwordConfirmation } = req.body;
+    const image = req.file;
 
     const schema = Yup.object().shape({
       name: Yup.string(),
@@ -164,6 +165,7 @@ export default class UserController {
 
       user.name = name;
       user.hashPassword(password);
+      user.profileImageUrl = image.filename;
 
       await usersRepository.save(user);
       return res
