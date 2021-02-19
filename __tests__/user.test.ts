@@ -34,7 +34,7 @@ describe('Testing User', () => {
 
     expect(response.status).toEqual(401);
     expect(response.text).toContain(
-      '["Name has not been informed","E-mail has not been informed","Password confirmation has not been informed","Password has not been informed"]',
+      '[{"error":"Name has not been informed"},{"error":"E-mail has not been informed"},{"error":"Password confirmation has not been informed"},{"error":"Password has not been informed"}]',
     );
   });
 

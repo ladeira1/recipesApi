@@ -95,11 +95,11 @@ export default class UserController {
       });
 
       if (!user) {
-        return res.status(401).json('Account not found');
+        return res.status(401).json(UserView.error('Account not found'));
       }
 
       if (!user.validatePassword(password)) {
-        return res.status(401).json('Invalid password');
+        return res.status(401).json(UserView.error('Invalid password'));
       }
 
       return res
@@ -114,9 +114,11 @@ export default class UserController {
     try {
       const usersRepository = getRepository(User);
       await usersRepository.delete({ id: req.userId });
-      return res.status(200).json('Account successfully deleted');
+      return res
+        .status(200)
+        .json(UserView.error('Account successfully deleted'));
     } catch (err) {
-      return res.status(401).json(err.message);
+      return res.status(401).json(UserView.error(err.message));
     }
   };
 
@@ -157,7 +159,7 @@ export default class UserController {
       const user = await usersRepository.findOne({ where: { id: req.userId } });
 
       if (!user) {
-        return res.status(401).json('Account not found');
+        return res.status(401).json(UserView.error('Account not found'));
       }
 
       user.name = name;
@@ -169,7 +171,7 @@ export default class UserController {
         .status(201)
         .json(UserView.renderToken(user, getToken(user.id)));
     } catch (err) {
-      return res.status(401).json(err.message);
+      return res.status(401).json(UserView.error(err.message));
     }
   };
 
@@ -180,12 +182,12 @@ export default class UserController {
       const user = await usersRepository.findOne({ where: { id } });
 
       if (!user) {
-        return res.status(401).json('User not found');
+        return res.status(401).json(UserView.error('User not found'));
       }
 
       return res.status(200).json(UserView.render(user));
     } catch (err) {
-      return res.status(401).json(err.message);
+      return res.status(401).json(UserView.error(err.message));
     }
   };
 }

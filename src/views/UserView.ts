@@ -7,6 +7,10 @@ interface UserResponse {
   token?: string;
 }
 
+interface ErrorResponse {
+  error: string;
+}
+
 export default class UserView {
   static render(user: User): UserResponse {
     return { id: user.id, name: user.name, email: user.email };
@@ -16,11 +20,11 @@ export default class UserView {
     return { id: user.id, name: user.name, email: user.email, token };
   }
 
-  static error(message: string): string {
-    return message;
+  static error(message: string): ErrorResponse {
+    return { error: message };
   }
 
-  static manyErrors(errorMessages: string[]): string[] {
+  static manyErrors(errorMessages: string[]): ErrorResponse[] {
     return errorMessages.map(err => this.error(err));
   }
 }
