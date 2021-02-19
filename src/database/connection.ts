@@ -14,8 +14,9 @@ const connection = {
     const entities = getConnection().entityMetadatas;
     entities.forEach(async entity => {
       const repository = getConnection().getRepository(entity.name); // Get repository
-      await repository.clear(); // Clear each entity table's
+      await repository.delete({}); // Clear each entity table's
     });
   },
 };
+
 export default connection;
