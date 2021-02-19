@@ -19,7 +19,7 @@ export default class User {
     type: 'varchar',
     nullable: true,
   })
-  profileImageUrl?: string;
+  profileImageUrl: string;
 
   @Column({ name: 'password_hash', type: 'varchar', length: 100 })
   password: string;
@@ -27,8 +27,8 @@ export default class User {
   @OneToMany(() => Recipe, recipe => recipe.user)
   recipes?: Recipe[];
 
-  hashPassword(): void {
-    this.password = bcrypt.hashSync(this.password, 8);
+  hashPassword(password: string): void {
+    this.password = bcrypt.hashSync(password, 8);
   }
 
   validatePassword(password: string): boolean {

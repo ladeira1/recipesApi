@@ -49,7 +49,7 @@ export default class UserController {
         password,
       });
 
-      user.hashPassword();
+      user.hashPassword(password);
       await usersRepository.save(user);
 
       return res
@@ -163,8 +163,7 @@ export default class UserController {
       }
 
       user.name = name;
-      user.password = password;
-      user?.hashPassword();
+      user.hashPassword(password);
 
       await usersRepository.save(user);
       return res

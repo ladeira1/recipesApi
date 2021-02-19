@@ -4,13 +4,15 @@ import app from '../src/app';
 import connection from '../src/database/connection';
 
 describe('Testing User', () => {
-  beforeAll(async () => {
+  beforeAll(async done => {
     await createTypeormConnection();
     await connection.clear();
+    done();
   });
 
-  beforeEach(async () => {
+  beforeEach(async done => {
     await connection.clear();
+    done();
   });
 
   afterAll(async () => {
@@ -21,8 +23,8 @@ describe('Testing User', () => {
   // create account
   it('should create user', async () => {
     const response = await request(app).post('/user').send({
-      name: 'joao',
-      email: 'joao@test.com',
+      name: 'willBeCreated',
+      email: 'success@test.com',
       password: '123123',
       passwordConfirmation: '123123',
     });
@@ -92,7 +94,7 @@ describe('Testing User', () => {
       password: '123123',
     });
 
-    // expect(response.status).toEqual(401);
+    expect(response.status).toEqual(401);
     expect(response.text).toContain('Account not found');
   });
 

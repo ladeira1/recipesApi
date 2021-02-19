@@ -11,8 +11,9 @@ import User from './User';
 @Entity('Recipe')
 export default class Recipe {
   @PrimaryGeneratedColumn()
-  id: string;
+  id: number;
 
+  @Column({ name: 'user_id', type: 'varchar' })
   @ManyToOne(() => User, user => user.recipes)
   user: User;
 
@@ -38,5 +39,5 @@ export default class Recipe {
   rating: Double;
 
   @Column({ name: 'created_at', type: 'date' })
-  createAt: Date;
+  createdAt: Date;
 }
