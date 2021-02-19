@@ -1,5 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import bcrypt from 'bcryptjs';
+
+import Recipe from './Recipe';
 
 @Entity('User')
 export default class User {
@@ -15,13 +17,15 @@ export default class User {
   @Column({
     name: 'profile_image_url',
     type: 'varchar',
-    length: 200,
     nullable: true,
   })
   profileImageUrl?: string;
 
   @Column({ name: 'password_hash', type: 'varchar', length: 100 })
   password: string;
+
+  @OneToMany(() => Recipe, recipe => recipe.user)
+  recipes?: Recipe[];
 
   hashPassword(): void {
     this.password = bcrypt.hashSync(this.password, 8);
