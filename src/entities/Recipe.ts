@@ -4,17 +4,20 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   Double,
+  JoinColumn,
+  Unique,
 } from 'typeorm';
 
 import User from './User';
 
 @Entity('Recipe')
+@Unique(['name', 'user'])
 export default class Recipe {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'user_id', type: 'varchar' })
   @ManyToOne(() => User, user => user.recipes)
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   @Column({ type: 'varchar', length: 40 })
