@@ -1,5 +1,5 @@
-const getImageUrl = (imageName: string): string => {
-  return `http://localhost:3333/uploads/${imageName}`;
+const getImageUrl = (imageName: string | undefined): string | null => {
+  return imageName ? `http://localhost:3333/uploads/${imageName}` : null;
 };
 
 export default getImageUrl;

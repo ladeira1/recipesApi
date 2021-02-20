@@ -18,7 +18,7 @@ export default class Recipe {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, user => user.recipes)
+  @ManyToOne(() => User, user => user.recipes, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: User;
 
@@ -46,6 +46,6 @@ export default class Recipe {
   @Column({ name: 'created_at', type: 'date' })
   createdAt: Date;
 
-  @OneToMany(() => Step, step => step.recipe, { eager: true })
+  @OneToMany(() => Step, step => step.recipe)
   steps: Step[];
 }

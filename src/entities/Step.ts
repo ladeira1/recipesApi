@@ -13,7 +13,7 @@ export default class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Recipe, recipe => recipe.steps)
+  @ManyToOne(() => Recipe, recipe => recipe.steps, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'recipe' })
   recipe: Recipe;
 

@@ -6,7 +6,7 @@ interface UserResponse {
   name: string;
   email: string;
   token?: string;
-  imageUrl: string;
+  imageUrl: string | null;
 }
 
 interface ErrorResponse {

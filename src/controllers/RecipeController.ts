@@ -19,12 +19,12 @@ export default class RecipeController {
     } = req.body;
     const image = req.file;
 
-    console.log(steps);
-
     const schema = Yup.object().shape({
       name: Yup.string().required('Recipe name has not been informed'),
       image: Yup.mixed()
+        .required()
         .test('fileSize', 'The file is too large', value => {
+          if (value === undefined) return false;
           if (!value.length) return true;
           return value[0].size <= 2000000;
         })
@@ -39,7 +39,6 @@ export default class RecipeController {
       ),
       steps: Yup.array(Yup.string()).required('Steps have not been informed'),
     });
-
     // validate request data
     const validationValues = {
       name,
@@ -65,7 +64,6 @@ export default class RecipeController {
 
       return res.status(401).json(RecipeView.manyErrors(validation));
     }
-
     // create recipe
     try {
       const usersRepository = getRepository(User);

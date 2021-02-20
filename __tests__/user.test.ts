@@ -2,32 +2,32 @@ import request from 'supertest';
 import createTypeormConnection from '../src/utils/createTypeormConnection';
 import app from '../src/app';
 import connection from '../src/database/connection';
+import User from '../src/entities/User';
 
 describe('Testing User', () => {
-  beforeAll(async done => {
+  const filePath = `${__dirname}/test-image/test.jpg`;
+
+  beforeAll(async () => {
     await createTypeormConnection();
-    await connection.clear();
-    done();
   });
 
-  beforeEach(async done => {
-    await connection.clear();
-    done();
+  beforeEach(async () => {
+    await connection.clear(User);
   });
 
   afterAll(async () => {
-    await connection.clear();
     await connection.close();
   });
 
   // create account
   it('should create user', async () => {
     const response = await request(app).post('/user').send({
-      name: 'willBeCreated',
-      email: 'success@test.com',
+      name: 'joao',
+      email: 'joao@test.com',
       password: '123123',
       passwordConfirmation: '123123',
     });
+
     expect(response.status).toEqual(201);
   });
 
@@ -159,11 +159,10 @@ describe('Testing User', () => {
 
     const response = await request(app)
       .put('/user')
-      .send({
-        name: 'newJoao',
-        password: '123124',
-        passwordConfirmation: '123124',
-      })
+      .field('name', 'newJoao')
+      .field('password', '123123')
+      .field('passwordConfirmation', '123123')
+      .attach('image', filePath)
       .set('Authorization', `Bearer ${userResponse.body.token}`);
 
     expect(response.status).toEqual(201);
@@ -201,11 +200,10 @@ describe('Testing User', () => {
 
     const response = await request(app)
       .put('/user')
-      .send({
-        name: 'newJoao',
-        password: '123123',
-        passwordConfirmation: '123124',
-      })
+      .field('name', 'newJoao')
+      .field('password', '123123')
+      .field('passwordConfirmation', '123124')
+      .attach('image', filePath)
       .set('Authorization', `Bearer ${userResponse.body.token}`);
 
     expect(response.status).toEqual(401);

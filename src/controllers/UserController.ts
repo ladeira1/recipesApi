@@ -136,13 +136,14 @@ export default class UserController {
         .min(6, 'Invalid password')
         .oneOf([Yup.ref('password')], 'Passwords must match'),
       image: Yup.mixed().test('fileSize', 'The file is too large', value => {
+        if (value === undefined) return true;
         if (!value.length) return true;
         return value[0].size <= 2000000;
       }),
     });
 
     // validate request data
-    const validationValues = { name, password, passwordConfirmation };
+    const validationValues = { name, password, passwordConfirmation, image };
     if (!(await schema.isValid(validationValues))) {
       const validation = await schema
         .validate(validationValues, {
@@ -168,7 +169,7 @@ export default class UserController {
 
       user.name = name;
       user.hashPassword(password);
-      user.profileImageUrl = image.filename;
+      user.profileImageUrl = image ? image.filename : undefined;
 
       await usersRepository.save(user);
       return res
