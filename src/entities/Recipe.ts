@@ -4,16 +4,22 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   Double,
+  JoinColumn,
+  Unique,
+  OneToMany,
 } from 'typeorm';
 
 import User from './User';
+import Step from './Step';
 
 @Entity('Recipe')
+@Unique(['name', 'user'])
 export default class Recipe {
   @PrimaryGeneratedColumn()
-  id: string;
+  id: number;
 
-  @ManyToOne(() => User, user => user.recipes)
+  @ManyToOne(() => User, user => user.recipes, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   @Column({ type: 'varchar', length: 40 })
@@ -38,5 +44,8 @@ export default class Recipe {
   rating: Double;
 
   @Column({ name: 'created_at', type: 'date' })
-  createAt: Date;
+  createdAt: Date;
+
+  @OneToMany(() => Step, step => step.recipe)
+  steps: Step[];
 }

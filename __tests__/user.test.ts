@@ -2,19 +2,20 @@ import request from 'supertest';
 import createTypeormConnection from '../src/utils/createTypeormConnection';
 import app from '../src/app';
 import connection from '../src/database/connection';
+import User from '../src/entities/User';
 
 describe('Testing User', () => {
+  const filePath = `${__dirname}/test-image/test.jpg`;
+
   beforeAll(async () => {
     await createTypeormConnection();
-    await connection.clear();
   });
 
   beforeEach(async () => {
-    await connection.clear();
+    await connection.clear(User);
   });
 
   afterAll(async () => {
-    await connection.clear();
     await connection.close();
   });
 
@@ -26,6 +27,7 @@ describe('Testing User', () => {
       password: '123123',
       passwordConfirmation: '123123',
     });
+
     expect(response.status).toEqual(201);
   });
 
@@ -34,7 +36,7 @@ describe('Testing User', () => {
 
     expect(response.status).toEqual(401);
     expect(response.text).toContain(
-      '["Name has not been informed","E-mail has not been informed","Password confirmation has not been informed","Password has not been informed"]',
+      '[{"error":"Name has not been informed"},{"error":"E-mail has not been informed"},{"error":"Password confirmation has not been informed"},{"error":"Password has not been informed"}]',
     );
   });
 
@@ -92,7 +94,7 @@ describe('Testing User', () => {
       password: '123123',
     });
 
-    // expect(response.status).toEqual(401);
+    expect(response.status).toEqual(401);
     expect(response.text).toContain('Account not found');
   });
 
@@ -157,11 +159,10 @@ describe('Testing User', () => {
 
     const response = await request(app)
       .put('/user')
-      .send({
-        name: 'newJoao',
-        password: '123124',
-        passwordConfirmation: '123124',
-      })
+      .field('name', 'newJoao')
+      .field('password', '123123')
+      .field('passwordConfirmation', '123123')
+      .attach('image', filePath)
       .set('Authorization', `Bearer ${userResponse.body.token}`);
 
     expect(response.status).toEqual(201);
@@ -199,11 +200,10 @@ describe('Testing User', () => {
 
     const response = await request(app)
       .put('/user')
-      .send({
-        name: 'newJoao',
-        password: '123123',
-        passwordConfirmation: '123124',
-      })
+      .field('name', 'newJoao')
+      .field('password', '123123')
+      .field('passwordConfirmation', '123124')
+      .attach('image', filePath)
       .set('Authorization', `Bearer ${userResponse.body.token}`);
 
     expect(response.status).toEqual(401);

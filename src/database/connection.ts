@@ -1,5 +1,11 @@
-import { getConnection, getRepository } from 'typeorm';
+import { EntityTarget, getConnection } from 'typeorm';
 import createTypeormConnection from '../utils/createTypeormConnection';
+
+import User from '../entities/User';
+import Recipe from '../entities/Recipe';
+import Step from '../entities/Step';
+
+type ClearType = User | Recipe | Step;
 
 const connection = {
   async create(): Promise<void> {
@@ -10,12 +16,8 @@ const connection = {
     await getConnection().close();
   },
 
-  async clear(): Promise<void> {
-    const entities = getConnection().entityMetadatas;
-    entities.forEach(async entity => {
-      const repository = getConnection().getRepository(entity.name); // Get repository
-      await repository.delete({}); // Clear each entity table's
-    });
+  async clear(table: EntityTarget<ClearType>): Promise<void> {
+    await getConnection().createQueryBuilder().delete().from(table).execute();
   },
 };
 
