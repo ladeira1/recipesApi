@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import { getRepository } from 'typeorm';
 import * as Yup from 'yup';
-
+import path from 'path';
+import { fs } from 'mz';
 import User from '../entities/User';
 import UserView from '../views/UserView';
 
@@ -113,10 +114,27 @@ export default class UserController {
   static delete = async (req: Request, res: Response): Promise<Response> => {
     try {
       const usersRepository = getRepository(User);
+      const user = await usersRepository.findOne({ id: req.userId });
+
+      if (user && user.profileImageUrl) {
+        await fs
+          .unlink(
+            path.resolve(
+              __dirname,
+              '..',
+              '..',
+              'uploads',
+              user.profileImageUrl,
+            ),
+          )
+          .catch(err => res.status(401).json(UserView.error(err.message)));
+      }
+
       await usersRepository.delete({ id: req.userId });
+
       return res
         .status(200)
-        .json(UserView.error('Account successfully deleted'));
+        .json(UserView.success('Account successfully deleted'));
     } catch (err) {
       return res.status(401).json(UserView.error(err.message));
     }
