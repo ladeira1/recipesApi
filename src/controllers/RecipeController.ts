@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
-import { getRepository } from 'typeorm';
+import { getManager, getRepository } from 'typeorm';
 import * as Yup from 'yup';
 
 import User from '../entities/User';
 import Recipe from '../entities/Recipe';
 import RecipeView from '../views/RecipeView';
+import StepController from './StepController';
 
 export default class RecipeController {
   static create = async (req: Request, res: Response): Promise<Response> => {
@@ -14,8 +15,11 @@ export default class RecipeController {
       ingredients,
       preparationTime,
       serves,
+      steps,
     } = req.body;
     const image = req.file;
+
+    console.log(steps);
 
     const schema = Yup.object().shape({
       name: Yup.string().required('Recipe name has not been informed'),
@@ -33,6 +37,7 @@ export default class RecipeController {
       serves: Yup.number().required(
         'The amount of people it serves must be informed',
       ),
+      steps: Yup.array(Yup.string()).required('Steps have not been informed'),
     });
 
     // validate request data
@@ -43,6 +48,7 @@ export default class RecipeController {
       ingredients,
       preparationTime,
       serves,
+      steps,
     };
 
     if (!(await schema.isValid(validationValues))) {
@@ -79,7 +85,15 @@ export default class RecipeController {
       });
 
       await recipesRepository.save(recipe);
-      return res.status(201).json(RecipeView.render(recipe));
+
+      // create steps
+      const createdSteps = await StepController.createSteps(steps, recipe);
+
+      if ('error' in createdSteps) {
+        return res.status(400).json(RecipeView.error(createdSteps.error));
+      }
+
+      return res.status(201).json(RecipeView.render(recipe, createdSteps));
     } catch (err) {
       return res.status(400).json(RecipeView.error(String(err.message)));
     }

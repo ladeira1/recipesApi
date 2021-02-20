@@ -123,7 +123,6 @@ export default class UserController {
   };
 
   static update = async (req: Request, res: Response): Promise<Response> => {
-    // image will be added in the future
     const { name, password, passwordConfirmation } = req.body;
     const image = req.file;
 
@@ -136,6 +135,10 @@ export default class UserController {
         .required('Password confirmation has not been informed')
         .min(6, 'Invalid password')
         .oneOf([Yup.ref('password')], 'Passwords must match'),
+      image: Yup.mixed().test('fileSize', 'The file is too large', value => {
+        if (!value.length) return true;
+        return value[0].size <= 2000000;
+      }),
     });
 
     // validate request data

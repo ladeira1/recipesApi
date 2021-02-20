@@ -6,9 +6,11 @@ import {
   Double,
   JoinColumn,
   Unique,
+  OneToMany,
 } from 'typeorm';
 
 import User from './User';
+import Step from './Step';
 
 @Entity('Recipe')
 @Unique(['name', 'user'])
@@ -43,4 +45,7 @@ export default class Recipe {
 
   @Column({ name: 'created_at', type: 'date' })
   createdAt: Date;
+
+  @OneToMany(() => Step, step => step.recipe, { eager: true })
+  steps: Step[];
 }

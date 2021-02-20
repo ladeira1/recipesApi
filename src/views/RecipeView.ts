@@ -1,5 +1,7 @@
 import Recipe from '../entities/Recipe';
+import Step from '../entities/Step';
 import getImageUrl from '../utils/getImageUrl';
+import StepsView from './StepsView';
 
 interface RecipeResponse {
   id: number;
@@ -13,6 +15,10 @@ interface RecipeResponse {
     name: string;
     imageUrl: string | null;
   };
+  steps: {
+    id: number;
+    content: string;
+  }[];
 }
 
 interface ErrorResponse {
@@ -20,7 +26,10 @@ interface ErrorResponse {
 }
 
 export default class RecipeView {
-  static render(recipe: Recipe): RecipeResponse {
+  static render(
+    recipe: Recipe,
+    steps: { id: number; content: string }[],
+  ): RecipeResponse {
     return {
       id: recipe.id,
       name: recipe.name,
@@ -33,6 +42,7 @@ export default class RecipeView {
         name: recipe.user.name,
         imageUrl: getImageUrl(recipe.user.profileImageUrl),
       },
+      steps,
     };
   }
 
