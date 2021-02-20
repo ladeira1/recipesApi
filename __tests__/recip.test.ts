@@ -94,4 +94,9 @@ describe('Testing Recipe', () => {
     const response = await request(app).get(`/recipe/${stepResponse.body.id}`);
     expect(response.status).toEqual(200);
   });
+
+  it('should not get a recipe if no an invalid id is passed', async () => {
+    const response = await request(app).get('/recipe/-3');
+    expect(response.status).toEqual(401);
+  });
 });
