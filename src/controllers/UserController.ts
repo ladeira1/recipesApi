@@ -198,7 +198,7 @@ export default class UserController {
     }
   };
 
-  static get = async (req: Request, res: Response): Promise<Response> => {
+  static index = async (req: Request, res: Response): Promise<Response> => {
     const { id } = req.params;
     try {
       const usersRepository = getRepository(User);

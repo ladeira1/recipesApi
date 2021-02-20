@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getConnection } from 'typeorm';
+import { getConnection, getRepository } from 'typeorm';
 import * as Yup from 'yup';
 
 import User from '../entities/User';
@@ -72,6 +72,10 @@ export default class RecipeController {
           where: { id: req.userId },
         });
 
+        if (!user) {
+          return res.status(401).json('User not found');
+        }
+
         const recipe = entityManager.create(Recipe, {
           name,
           imageUrl: image.filename,
@@ -104,5 +108,21 @@ export default class RecipeController {
     });
 
     return response;
+  };
+
+  static index = async (req: Request, res: Response): Promise<Response> => {
+    const { id } = req.params;
+    try {
+      const recipesRepository = getRepository(Recipe);
+      const recipe = await recipesRepository.findOne({ where: { id } });
+
+      if (!recipe) {
+        return res.status(401).json(RecipeView.error('Recipe not found'));
+      }
+
+      return res.status(200).json(RecipeView.render(recipe));
+    } catch (err) {
+      return res.status(401).json(RecipeView.error(err.message));
+    }
   };
 }

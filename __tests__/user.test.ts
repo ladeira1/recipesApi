@@ -225,7 +225,6 @@ describe('Testing User', () => {
     });
 
     const response = await request(app).get(`/user/${userResponse.body.id}`);
-
     expect(response.status).toEqual(200);
     expect(response.text).toContain(userResponse.body.id);
     expect(response.text).toContain('joao');

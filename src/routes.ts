@@ -12,7 +12,7 @@ const routes = Router();
 const upload = multer(uploadConfig);
 
 // user
-routes.get('/user/:id', UserController.get);
+routes.get('/user/:id', UserController.index);
 routes.post('/user', UserController.create);
 routes.post('/user/auth', UserController.login);
 routes.delete('/user', authMiddleware, UserController.delete);
@@ -24,6 +24,7 @@ routes.put(
 );
 
 // recipe
+routes.get('/recipe/:id', RecipeController.index);
 routes.post(
   '/recipe',
   authMiddleware,

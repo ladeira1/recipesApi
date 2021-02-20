@@ -76,4 +76,22 @@ describe('Testing Recipe', () => {
       '[{"error":"Recipe name has not been informed"},{"error":"Image has not been added"},{"error":"The file is too large"},{"error":"Description has not been informed"},{"error":"Ingredients have not been informed"},{"error":"Preparation time must be informed"},{"error":"The amount of people it serves must be informed"},{"error":"Steps have not been informed"}]',
     );
   });
+
+  it('should get a recipe when user is not authenticated', async () => {
+    const stepResponse = await request(app)
+      .post('/recipe')
+      .field('name', 'test recipe')
+      .field('description', 'test description')
+      .field('ingredients', 'ingredient 1, ingredient 2, ingredient 3')
+      .field('preparationTime', 40)
+      .field('serves', 2)
+      .field('steps', 'first step')
+      .field('steps', 'second step')
+      .field('steps', 'third step')
+      .attach('image', filePath)
+      .set('Authorization', `Bearer ${token}`);
+
+    const response = await request(app).get(`/recipe/${stepResponse.body.id}`);
+    expect(response.status).toEqual(200);
+  });
 });
