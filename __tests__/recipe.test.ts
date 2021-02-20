@@ -24,7 +24,6 @@ describe('Testing Recipe', () => {
       password: '123123',
       passwordConfirmation: '123123',
     });
-
     token = response.body.token;
   });
 
@@ -32,6 +31,7 @@ describe('Testing Recipe', () => {
     await connection.close();
   });
 
+  // create recipe
   it('should create recipe', async () => {
     const response = await request(app)
       .post('/recipe')
@@ -77,8 +77,9 @@ describe('Testing Recipe', () => {
     );
   });
 
+  // get one recipe
   it('should get a recipe when user is not authenticated', async () => {
-    const stepResponse = await request(app)
+    const recipeResponse = await request(app)
       .post('/recipe')
       .field('name', 'test recipe')
       .field('description', 'test description')
@@ -91,12 +92,89 @@ describe('Testing Recipe', () => {
       .attach('image', filePath)
       .set('Authorization', `Bearer ${token}`);
 
-    const response = await request(app).get(`/recipe/${stepResponse.body.id}`);
+    const response = await request(app).get(
+      `/recipe/${recipeResponse.body.id}`,
+    );
     expect(response.status).toEqual(200);
   });
 
-  it('should not get a recipe if no an invalid id is passed', async () => {
+  it('should not get a recipe if an invalid id is passed', async () => {
     const response = await request(app).get('/recipe/-3');
     expect(response.status).toEqual(401);
+  });
+
+  // get recent recipes
+  it('should get the newest recipes', async () => {
+    await request(app)
+      .post('/recipe')
+      .field('name', 'test recipe3')
+      .field('description', 'test description')
+      .field('ingredients', 'ingredient 1, ingredient 2, ingredient 3')
+      .field('preparationTime', 40)
+      .field('serves', 2)
+      .field('steps', 'first step')
+      .field('steps', 'second step')
+      .field('steps', 'third step')
+      .attach('image', filePath)
+      .set('Authorization', `Bearer ${token}`);
+
+    const response = await request(app).get('/recipe/recent/1/5');
+    expect(response.status).toEqual(200);
+  });
+
+  // get top recipes
+  it('should get the top recipes', async () => {
+    await request(app)
+      .post('/recipe')
+      .field('name', 'test recipe3')
+      .field('description', 'test description')
+      .field('ingredients', 'ingredient 1, ingredient 2, ingredient 3')
+      .field('preparationTime', 40)
+      .field('serves', 2)
+      .field('steps', 'first step')
+      .field('steps', 'second step')
+      .field('steps', 'third step')
+      .attach('image', filePath)
+      .set('Authorization', `Bearer ${token}`);
+
+    const response = await request(app).get('/recipe/top/1/5');
+    expect(response.status).toEqual(200);
+  });
+
+  it('shouldnt get recipes when no page or limit has been informed', async () => {
+    await request(app)
+      .post('/recipe')
+      .field('name', 'test recipe3')
+      .field('description', 'test description')
+      .field('ingredients', 'ingredient 1, ingredient 2, ingredient 3')
+      .field('preparationTime', 40)
+      .field('serves', 2)
+      .field('steps', 'first step')
+      .field('steps', 'second step')
+      .field('steps', 'third step')
+      .attach('image', filePath)
+      .set('Authorization', `Bearer ${token}`);
+    const response = await request(app).get('/recipe/top');
+    expect(response.status).toEqual(401);
+  });
+
+  it('should get the recipes by name', async () => {
+    await request(app)
+      .post('/recipe')
+      .field('name', 'test recipe3')
+      .field('description', 'test description')
+      .field('ingredients', 'ingredient 1, ingredient 2, ingredient 3')
+      .field('preparationTime', 40)
+      .field('serves', 2)
+      .field('steps', 'first step')
+      .field('steps', 'second step')
+      .field('steps', 'third step')
+      .attach('image', filePath)
+      .set('Authorization', `Bearer ${token}`);
+
+    const response = await request(app)
+      .get('/recipe/name/1/5')
+      .send({ name: 'recipe3' });
+    expect(response.status).toEqual(200);
   });
 });

@@ -7,6 +7,7 @@ import UserController from './controllers/UserController';
 import RecipeController from './controllers/RecipeController';
 
 import authMiddleware from './middlewares/auth';
+import Recipe from './entities/Recipe';
 
 const routes = Router();
 const upload = multer(uploadConfig);
@@ -25,6 +26,9 @@ routes.put(
 
 // recipe
 routes.get('/recipe/:id', RecipeController.index);
+routes.get('/recipe/recent/:page/:limit', RecipeController.getRecent);
+routes.get('/recipe/top/:page/:limit', RecipeController.getTopRated);
+routes.get('/recipe/name/:page/:limit', RecipeController.getByName);
 routes.post(
   '/recipe',
   authMiddleware,
