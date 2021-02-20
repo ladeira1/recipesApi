@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getManager, getRepository } from 'typeorm';
+import { getConnection } from 'typeorm';
 import * as Yup from 'yup';
 
 import User from '../entities/User';
@@ -22,7 +22,7 @@ export default class RecipeController {
     const schema = Yup.object().shape({
       name: Yup.string().required('Recipe name has not been informed'),
       image: Yup.mixed()
-        .required()
+        .required('Image has not been added')
         .test('fileSize', 'The file is too large', value => {
           if (value === undefined) return false;
           if (!value.length) return true;
@@ -65,35 +65,44 @@ export default class RecipeController {
       return res.status(401).json(RecipeView.manyErrors(validation));
     }
     // create recipe
-    try {
-      const usersRepository = getRepository(User);
-      const user = await usersRepository.findOne({ where: { id: req.userId } });
+    const response = await getConnection().transaction(async entityManager => {
+      try {
+        // const usersRepository = getRepository(User);
+        const user = await entityManager.findOne(User, {
+          where: { id: req.userId },
+        });
 
-      const recipesRepository = getRepository(Recipe);
-      const recipe = recipesRepository.create({
-        name,
-        imageUrl: image.filename,
-        description,
-        ingredients,
-        preparationTime,
-        serves,
-        rating: 0,
-        createdAt: new Date(),
-        user,
-      });
+        const recipe = entityManager.create(Recipe, {
+          name,
+          imageUrl: image.filename,
+          description,
+          ingredients,
+          preparationTime,
+          serves,
+          rating: 0,
+          createdAt: new Date(),
+          user,
+        });
 
-      await recipesRepository.save(recipe);
+        await entityManager.save(recipe);
 
-      // create steps
-      const createdSteps = await StepController.createSteps(steps, recipe);
+        // create steps
+        const createdSteps = await StepController.createSteps(
+          steps,
+          recipe,
+          entityManager,
+        );
 
-      if ('error' in createdSteps) {
-        return res.status(400).json(RecipeView.error(createdSteps.error));
+        if ('error' in createdSteps) {
+          return res.status(400).json(RecipeView.error(createdSteps.error));
+        }
+
+        return res.status(201).json(RecipeView.render(recipe, createdSteps));
+      } catch (err) {
+        return res.status(400).json(RecipeView.error(String(err.message)));
       }
+    });
 
-      return res.status(201).json(RecipeView.render(recipe, createdSteps));
-    } catch (err) {
-      return res.status(400).json(RecipeView.error(String(err.message)));
-    }
+    return response;
   };
 }

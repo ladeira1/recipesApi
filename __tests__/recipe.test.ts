@@ -73,7 +73,7 @@ describe('Testing Recipe', () => {
 
     expect(response.status).toEqual(401);
     expect(response.text).toContain(
-      '[{"error":"Recipe name has not been informed"},{"error":"image is a required field"},{"error":"The file is too large"},{"error":"Description has not been informed"},{"error":"Ingredients have not been informed"},{"error":"Preparation time must be informed"},{"error":"The amount of people it serves must be informed"},{"error":"Steps have not been informed"}]',
+      '[{"error":"Recipe name has not been informed"},{"error":"Image has not been added"},{"error":"The file is too large"},{"error":"Description has not been informed"},{"error":"Ingredients have not been informed"},{"error":"Preparation time must be informed"},{"error":"The amount of people it serves must be informed"},{"error":"Steps have not been informed"}]',
     );
   });
 });
