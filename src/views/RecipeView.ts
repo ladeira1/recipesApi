@@ -1,7 +1,6 @@
+import { number } from 'yup/lib/locale';
 import Recipe from '../entities/Recipe';
-import Step from '../entities/Step';
 import getImageUrl from '../utils/getImageUrl';
-import StepsView from './StepsView';
 
 interface RecipeResponse {
   id: number;
@@ -21,6 +20,19 @@ interface RecipeResponse {
   }[];
 }
 
+interface GeneralRecipeResponse {
+  id: number;
+  name: string;
+  imageUrl: string | null;
+  description: string;
+  rating: number;
+}
+
+interface ManyRecipesResponse {
+  recipes: GeneralRecipeResponse[];
+  next: { limit: number; page: number };
+}
+
 interface ErrorResponse {
   error: string;
 }
@@ -28,7 +40,7 @@ interface ErrorResponse {
 export default class RecipeView {
   static render(
     recipe: Recipe,
-    steps: { id: number; content: string }[],
+    steps?: { id: number; content: string }[],
   ): RecipeResponse {
     return {
       id: recipe.id,
@@ -42,7 +54,28 @@ export default class RecipeView {
         name: recipe.user.name,
         imageUrl: getImageUrl(recipe.user.profileImageUrl),
       },
-      steps,
+      steps: steps || recipe.steps,
+    };
+  }
+
+  static renderGeneral(recipe: Recipe): GeneralRecipeResponse {
+    return {
+      id: recipe.id,
+      name: recipe.name,
+      imageUrl: getImageUrl(recipe.imageUrl),
+      description: recipe.description,
+      rating: Number(recipe.rating),
+    };
+  }
+
+  static renderMany(
+    recipes: Recipe[],
+    page: number,
+    limit: number,
+  ): ManyRecipesResponse {
+    return {
+      recipes: recipes.map(recipe => this.renderGeneral(recipe)),
+      next: { page, limit },
     };
   }
 

@@ -30,4 +30,15 @@ export default class StepController {
       return { error: err.message };
     }
   }
+
+  static async getSteps(recipe: Recipe): Promise<StepsResponse> {
+    try {
+      const stepsRepository = getRepository(Step);
+      const steps = await stepsRepository.find({ where: { recipe } });
+
+      return StepsView.renderMany(steps);
+    } catch (err) {
+      return { error: err.message };
+    }
+  }
 }

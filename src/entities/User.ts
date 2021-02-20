@@ -21,7 +21,11 @@ export default class User {
   })
   profileImageUrl?: string;
 
-  @Column({ name: 'password_hash', type: 'varchar', length: 100 })
+  @Column({
+    name: 'password_hash',
+    type: 'varchar',
+    length: 100,
+  })
   password: string;
 
   @OneToMany(() => Recipe, recipe => recipe.user)
