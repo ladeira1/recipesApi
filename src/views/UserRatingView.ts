@@ -1,6 +1,7 @@
 import UserRating from '../entities/UserRating';
 
 interface UserRatingResponse {
+  id: number;
   userId: string;
   recipeId: number;
   rating: number;
@@ -13,6 +14,7 @@ interface ErrorResponse {
 export default class UserRatingView {
   static render(userRating: UserRating): UserRatingResponse {
     return {
+      id: userRating.id,
       userId: userRating.user.id,
       recipeId: userRating.recipe.id,
       rating: userRating.rating,

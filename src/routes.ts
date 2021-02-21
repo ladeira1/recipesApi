@@ -9,6 +9,7 @@ import RecipeController from './controllers/RecipeController';
 import authMiddleware from './middlewares/auth';
 import Recipe from './entities/Recipe';
 import UserRatingController from './controllers/UserRatingController';
+import UserRating from './entities/UserRating';
 
 const routes = Router();
 const upload = multer(uploadConfig);
@@ -46,5 +47,6 @@ routes.delete('/recipe/:id', authMiddleware, RecipeController.delete);
 
 // rating a recipe
 routes.post('/rating', authMiddleware, UserRatingController.create);
+routes.put('/rating', authMiddleware, UserRatingController.update);
 
 export default routes;

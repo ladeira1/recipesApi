@@ -16,12 +16,16 @@ export default class UserRating {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, user => user.userRatings, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, user => user.userRatings, {
+    onDelete: 'CASCADE',
+    eager: true,
+  })
   @JoinColumn({ name: 'user_id' })
   user: User;
 
   @ManyToOne(() => Recipe, recipe => recipe.userRatings, {
     onDelete: 'CASCADE',
+    eager: true,
   })
   @JoinColumn({ name: 'recipe_id' })
   recipe: Recipe;
