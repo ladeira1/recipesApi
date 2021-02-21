@@ -19,4 +19,7 @@ export default class User {
 
   @Column({ type: 'varchar' })
   content: string;
+
+  @Column({ name: 'created_at', type: 'date' })
+  createdAt: Date;
 }

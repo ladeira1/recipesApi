@@ -73,7 +73,7 @@ describe('Testing Recipe', () => {
 
     expect(response.status).toEqual(401);
     expect(response.text).toContain(
-      '[{"error":"Recipe name has not been informed"},{"error":"Image has not been added"},{"error":"The file is too large"},{"error":"Description has not been informed"},{"error":"Ingredients have not been informed"},{"error":"Preparation time must be informed"},{"error":"The amount of people it serves must be informed"},{"error":"Steps have not been informed"}]',
+      '[{"error":"Recipe name must be informed"},{"error":"Image must be added"},{"error":"The file is too large"},{"error":"Description must be informed"},{"error":"Ingredients must be informed"},{"error":"Preparation time must be informed"},{"error":"The amount of people it serves must be informed"},{"error":"Steps must be informed"}]',
     );
   });
 
@@ -99,7 +99,7 @@ describe('Testing Recipe', () => {
   });
 
   it('should not get a recipe if an invalid id is passed', async () => {
-    const response = await request(app).get('/recipe/-3');
+    const response = await request(app).get('/recipe/-3-');
     expect(response.status).toEqual(401);
   });
 
@@ -176,5 +176,98 @@ describe('Testing Recipe', () => {
       .get('/recipe/name/1/5')
       .send({ name: 'recipe3' });
     expect(response.status).toEqual(200);
+  });
+
+  it('should delete a recipe created by the user', async () => {
+    const recipeResponse = await request(app)
+      .post('/recipe')
+      .field('name', 'test recipe3')
+      .field('description', 'test description')
+      .field('ingredients', 'ingredient 1, ingredient 2, ingredient 3')
+      .field('preparationTime', 40)
+      .field('serves', 2)
+      .field('steps', 'first step')
+      .field('steps', 'second step')
+      .field('steps', 'third step')
+      .attach('image', filePath)
+      .set('Authorization', `Bearer ${token}`);
+
+    const response = await request(app)
+      .delete(`/recipe/${recipeResponse.body.id}`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toEqual(200);
+    expect(response.text).toContain('Recipe succesfully deleted');
+  });
+
+  it('should not delete a recipe created by another user', async () => {
+    const recipeResponse = await request(app)
+      .post('/recipe')
+      .field('name', 'test recipe3')
+      .field('description', 'test description')
+      .field('ingredients', 'ingredient 1, ingredient 2, ingredient 3')
+      .field('preparationTime', 40)
+      .field('serves', 2)
+      .field('steps', 'first step')
+      .field('steps', 'second step')
+      .field('steps', 'third step')
+      .attach('image', filePath)
+      .set('Authorization', `Bearer ${token}`);
+
+    const userResponse = await request(app).post('/user').send({
+      name: 'test',
+      email: 'test@test.com',
+      password: '123123',
+      passwordConfirmation: '123123',
+    });
+
+    const response = await request(app)
+      .delete(`/recipe/${recipeResponse.body.id}`)
+      .set('Authorization', `Bearer ${userResponse.body.token}`);
+
+    expect(response.status).toEqual(401);
+    expect(response.text).toContain('You can only delete your own recipes');
+  });
+
+  it('should not delete a recipe when not authenticated', async () => {
+    const recipeResponse = await request(app)
+      .post('/recipe')
+      .field('name', 'test recipe3')
+      .field('description', 'test description')
+      .field('ingredients', 'ingredient 1, ingredient 2, ingredient 3')
+      .field('preparationTime', 40)
+      .field('serves', 2)
+      .field('steps', 'first step')
+      .field('steps', 'second step')
+      .field('steps', 'third step')
+      .attach('image', filePath)
+      .set('Authorization', `Bearer ${token}`);
+
+    const response = await request(app).delete(
+      `/recipe/${recipeResponse.body.id}`,
+    );
+
+    expect(response.status).toEqual(400);
+    expect(response.text).toContain('Token not found');
+  });
+
+  it('should not delete a recipe when id is invalid', async () => {
+    await request(app)
+      .post('/recipe')
+      .field('name', 'test recipe3')
+      .field('description', 'test description')
+      .field('ingredients', 'ingredient 1, ingredient 2, ingredient 3')
+      .field('preparationTime', 40)
+      .field('serves', 2)
+      .field('steps', 'first step')
+      .field('steps', 'second step')
+      .field('steps', 'third step')
+      .attach('image', filePath)
+      .set('Authorization', `Bearer ${token}`);
+
+    const response = await request(app).delete(`/recipe/-343`);
+
+    expect(response.status).toEqual(400);
+    expect(response.text).toContain('Token not found');
   });
 });
