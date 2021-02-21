@@ -367,9 +367,7 @@ export default class RecipeController {
         .catch(err => res.status(401).json(RecipeView.error(err.message)));
 
       await recipesRepository.delete({ id: recipe.id });
-      return res
-        .status(200)
-        .json(RecipeView.message('Recipe succesfully deleted'));
+      return res.status(204);
     } catch (err) {
       return res.status(401).json(RecipeView.error(err.message));
     }

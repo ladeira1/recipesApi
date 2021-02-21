@@ -272,9 +272,7 @@ export default class UserRatingController {
           await transactionalEntityManager.delete(UserRating, currentRating);
           await transactionalEntityManager.save(recipe);
 
-          return res
-            .status(200)
-            .json(UserRatingView.success('Rating successfully deleted'));
+          return res.status(204);
         } catch (err) {
           return res
             .status(400)
