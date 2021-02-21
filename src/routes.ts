@@ -48,5 +48,6 @@ routes.delete('/recipe/:id', authMiddleware, RecipeController.delete);
 // rating a recipe
 routes.post('/rating', authMiddleware, UserRatingController.create);
 routes.put('/rating', authMiddleware, UserRatingController.update);
+routes.delete('/rating/:id', authMiddleware, UserRatingController.delete);
 
 export default routes;

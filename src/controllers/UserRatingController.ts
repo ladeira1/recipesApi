@@ -191,4 +191,94 @@ export default class UserRatingController {
       })
       .then(r => r);
   };
+
+  static delete = async (req: Request, res: Response): Promise<Response> => {
+    const { id } = req.params;
+
+    const schema = Yup.object().shape({
+      id: Yup.number().required('Recipe must be informed'),
+    });
+    // validate request data
+    const validationValues = { id };
+    if (!(await schema.isValid(validationValues))) {
+      const validation = await schema
+        .validate(validationValues, {
+          abortEarly: false,
+        })
+        .catch(err => {
+          const errors = err.errors.map((message: string) => {
+            return message;
+          });
+          return errors;
+        });
+      return res.status(401).json(UserRatingView.manyErrors(validation));
+    }
+
+    // delete rating
+    return getConnection()
+      .transaction(async transactionalEntityManager => {
+        try {
+          const user = await transactionalEntityManager.findOne(User, {
+            where: { id: req.userId },
+          });
+
+          if (!user) {
+            return res.status(401).json(UserRatingView.error('User not found'));
+          }
+
+          // get this rating
+          const currentRating = await transactionalEntityManager.findOne(
+            UserRating,
+            {
+              where: { id, user },
+            },
+          );
+
+          if (!currentRating) {
+            return res
+              .status(401)
+              .json(UserRatingView.error('Rating not found'));
+          }
+
+          const recipe = await transactionalEntityManager.findOne(Recipe, {
+            where: { id: currentRating.recipe.id },
+          });
+
+          if (!recipe) {
+            return res
+              .status(401)
+              .json(UserRatingView.error('Recipe not found'));
+          }
+
+          // get all ratings related to this recipe except this one
+          const allRatings = await transactionalEntityManager.find(UserRating, {
+            where: { recipe, id: Not(id) },
+          });
+
+          if (!allRatings || allRatings.length === 0) {
+            recipe.rating = 0;
+          } else {
+            let newRatingValue = 0;
+            let counter = 0;
+
+            allRatings.forEach(r => {
+              newRatingValue += Number(r.rating);
+              counter += 1;
+            });
+
+            recipe.rating = newRatingValue / counter;
+          }
+
+          await transactionalEntityManager.delete(UserRating, currentRating);
+          await transactionalEntityManager.save(recipe);
+
+          return res.status(201).json(UserRatingView.render(currentRating));
+        } catch (err) {
+          return res
+            .status(400)
+            .json(UserRatingView.error(String(err.message)));
+        }
+      })
+      .then(r => r);
+  };
 }
