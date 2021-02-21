@@ -157,7 +157,7 @@ export default class RecipeController {
           });
 
           if (!user) {
-            return res.status(401).json('User not found');
+            return res.status(401).json(RecipeView.error('User not found'));
           }
 
           const recipe = transactionalEntityManager.create(Recipe, {

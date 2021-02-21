@@ -9,6 +9,7 @@ interface RecipeResponse {
   ingredients: string;
   preparationTime: number;
   serves: number;
+  rating: number;
   user: {
     name: string;
     imageUrl: string | null;
@@ -53,6 +54,7 @@ export default class RecipeView {
       ingredients: recipe.ingredients,
       preparationTime: recipe.preparationTime,
       serves: recipe.serves,
+      rating: Number(recipe.rating),
       user: {
         name: recipe.user.name,
         imageUrl: getImageUrl(recipe.user.profileImageUrl),

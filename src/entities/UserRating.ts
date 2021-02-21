@@ -1,21 +1,30 @@
-import { Entity, Column, ManyToOne, JoinColumn, PrimaryColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm';
 
 import Recipe from './Recipe';
 import User from './User';
 
 @Entity('UserRating')
+@Unique(['user', 'recipe'])
 export default class UserRating {
-  @PrimaryColumn({ name: 'user_id' })
+  @PrimaryGeneratedColumn()
+  id: number;
+
   @ManyToOne(() => User, user => user.userRatings, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
-  user: string;
+  user: User;
 
-  @PrimaryColumn({ name: 'recipe_id' })
   @ManyToOne(() => Recipe, recipe => recipe.userRatings, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'recipe_id' })
-  recipe: number;
+  recipe: Recipe;
 
   @Column({ type: 'numeric' })
   rating: number;
