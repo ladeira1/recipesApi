@@ -11,6 +11,7 @@ import {
 
 import User from './User';
 import Step from './Step';
+import UserRating from './UserRating';
 
 @Entity('Recipe')
 @Unique(['name', 'user'])
@@ -51,4 +52,7 @@ export default class Recipe {
 
   @OneToMany(() => Step, step => step.recipe, { eager: true })
   steps: Step[];
+
+  @OneToMany(() => UserRating, userRating => userRating.recipe)
+  userRatings: UserRating[];
 }

@@ -9,7 +9,7 @@ import {
 import Recipe from './Recipe';
 
 @Entity('Step')
-export default class User {
+export default class Step {
   @PrimaryGeneratedColumn()
   id: number;
 
