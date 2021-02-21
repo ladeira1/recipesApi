@@ -41,5 +41,6 @@ routes.put(
   upload.single('image'),
   RecipeController.update,
 );
+routes.delete('/recipe/:id', authMiddleware, RecipeController.delete);
 
 export default routes;

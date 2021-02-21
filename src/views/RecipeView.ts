@@ -1,4 +1,3 @@
-import { number } from 'yup/lib/locale';
 import Recipe from '../entities/Recipe';
 import getImageUrl from '../utils/getImageUrl';
 
@@ -35,6 +34,10 @@ interface ManyRecipesResponse {
 
 interface ErrorResponse {
   error: string;
+}
+
+interface SuccessResponse {
+  success: string;
 }
 
 export default class RecipeView {
@@ -77,6 +80,10 @@ export default class RecipeView {
       recipes: recipes.map(recipe => this.renderGeneral(recipe)),
       next: { page, limit },
     };
+  }
+
+  static message(message: string): SuccessResponse {
+    return { success: message };
   }
 
   static error(message: string): ErrorResponse {

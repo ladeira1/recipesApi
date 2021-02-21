@@ -1,4 +1,4 @@
-import { Request, response, Response } from 'express';
+import { Request, Response } from 'express';
 import { getConnection, getRepository, Like } from 'typeorm';
 import * as Yup from 'yup';
 import { fs } from 'mz';
@@ -339,5 +339,39 @@ export default class RecipeController {
         }
       })
       .then(r => r);
+  };
+
+  static delete = async (req: Request, res: Response): Promise<Response> => {
+    const { id } = req.params;
+    try {
+      const usersRepository = getRepository(User);
+      const user = await usersRepository.findOne({ where: { id: req.userId } });
+      if (!user) {
+        return res.status(401).json(RecipeView.error('User not found'));
+      }
+
+      const recipesRepository = getRepository(Recipe);
+      const recipe = await recipesRepository.findOne({ where: { id } });
+      if (!recipe) {
+        return res.status(401).json(RecipeView.error('Recipe not found'));
+      }
+
+      if (recipe.user.id !== req.userId) {
+        return res
+          .status(401)
+          .json(RecipeView.error('You can only delete your own recipes'));
+      }
+
+      await fs
+        .unlink(path.resolve(__dirname, '..', '..', 'uploads', recipe.imageUrl))
+        .catch(err => res.status(401).json(RecipeView.error(err.message)));
+
+      await recipesRepository.delete({ id: recipe.id });
+      return res
+        .status(200)
+        .json(RecipeView.message('Recipe succesfully deleted'));
+    } catch (err) {
+      return res.status(401).json(RecipeView.error(err.message));
+    }
   };
 }
