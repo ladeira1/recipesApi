@@ -17,6 +17,7 @@ export default class StepController {
         steps.map(async step => {
           const createdStep = entityManager.create(Step, {
             content: step,
+            createdAt: new Date(),
             recipe,
           });
 
@@ -34,11 +35,36 @@ export default class StepController {
   static async getSteps(recipe: Recipe): Promise<StepsResponse> {
     try {
       const stepsRepository = getRepository(Step);
-      const steps = await stepsRepository.find({ where: { recipe } });
+      const steps = await stepsRepository.find({
+        order: { createdAt: 'ASC', id: 'ASC' },
+        where: { recipe },
+      });
 
       return StepsView.renderMany(steps);
     } catch (err) {
       return { error: err.message };
+    }
+  }
+
+  static async updateSteps(steps: Step[]): Promise<void | { error: string }> {
+    const updatedSteps = await steps.map(async step => {
+      const stepsRepository = getRepository(Step);
+      const currentStep = await stepsRepository.findOne({
+        where: { id: step.id },
+      });
+
+      if (!currentStep) {
+        return { error: 'Step not found' };
+      }
+
+      currentStep.content = step.content;
+
+      await stepsRepository.save(currentStep);
+      return StepsView.render(currentStep);
+    });
+
+    if ('error' in updatedSteps[0]) {
+      return updatedSteps[0];
     }
   }
 }

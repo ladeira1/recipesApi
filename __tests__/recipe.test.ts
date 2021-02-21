@@ -73,7 +73,7 @@ describe('Testing Recipe', () => {
 
     expect(response.status).toEqual(401);
     expect(response.text).toContain(
-      '[{"error":"Recipe name has not been informed"},{"error":"Image has not been added"},{"error":"The file is too large"},{"error":"Description has not been informed"},{"error":"Ingredients have not been informed"},{"error":"Preparation time must be informed"},{"error":"The amount of people it serves must be informed"},{"error":"Steps have not been informed"}]',
+      '[{"error":"Recipe name must be informed"},{"error":"Image must be added"},{"error":"The file is too large"},{"error":"Description must be informed"},{"error":"Ingredients must be informed"},{"error":"Preparation time must be informed"},{"error":"The amount of people it serves must be informed"},{"error":"Steps must be informed"}]',
     );
   });
 
@@ -99,7 +99,7 @@ describe('Testing Recipe', () => {
   });
 
   it('should not get a recipe if an invalid id is passed', async () => {
-    const response = await request(app).get('/recipe/-3');
+    const response = await request(app).get('/recipe/-3-');
     expect(response.status).toEqual(401);
   });
 

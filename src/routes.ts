@@ -35,5 +35,11 @@ routes.post(
   upload.single('image'),
   RecipeController.create,
 );
+routes.put(
+  '/recipe',
+  authMiddleware,
+  upload.single('image'),
+  RecipeController.update,
+);
 
 export default routes;
