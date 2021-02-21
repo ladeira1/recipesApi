@@ -1,4 +1,4 @@
-import { getConnection, Not } from 'typeorm';
+import { getConnection, Not, getRepository } from 'typeorm';
 import { Request, Response } from 'express';
 import * as Yup from 'yup';
 
@@ -182,7 +182,7 @@ export default class UserRatingController {
           await transactionalEntityManager.save(currentRating);
           await transactionalEntityManager.save(recipe);
 
-          return res.status(201).json(UserRatingView.render(currentRating));
+          return res.status(200).json(UserRatingView.render(currentRating));
         } catch (err) {
           return res
             .status(400)
@@ -272,7 +272,9 @@ export default class UserRatingController {
           await transactionalEntityManager.delete(UserRating, currentRating);
           await transactionalEntityManager.save(recipe);
 
-          return res.status(201).json(UserRatingView.render(currentRating));
+          return res
+            .status(200)
+            .json(UserRatingView.success('Rating successfully deleted'));
         } catch (err) {
           return res
             .status(400)
@@ -280,5 +282,41 @@ export default class UserRatingController {
         }
       })
       .then(r => r);
+  };
+
+  static index = async (req: Request, res: Response): Promise<Response> => {
+    const { id } = req.params;
+
+    const schema = Yup.object().shape({
+      id: Yup.number().required('Recipe must be informed'),
+    });
+    // validate request data
+    const validationValues = { id };
+    if (!(await schema.isValid(validationValues))) {
+      const validation = await schema
+        .validate(validationValues, {
+          abortEarly: false,
+        })
+        .catch(err => {
+          const errors = err.errors.map((message: string) => {
+            return message;
+          });
+          return errors;
+        });
+      return res.status(401).json(UserRatingView.manyErrors(validation));
+    }
+
+    try {
+      const usersRatingsRepository = getRepository(UserRating);
+      const rating = await usersRatingsRepository.findOne({ where: { id } });
+
+      if (!rating) {
+        return res.status(401).json(UserRatingView.error('Rating not found'));
+      }
+
+      return res.status(200).json(UserRatingView.render(rating));
+    } catch (err) {
+      return res.status(401).json(UserRatingView.error(err.message));
+    }
   };
 }

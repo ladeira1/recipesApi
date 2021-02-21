@@ -11,6 +11,10 @@ interface ErrorResponse {
   error: string;
 }
 
+interface SuccessResponse {
+  success: string;
+}
+
 export default class UserRatingView {
   static render(userRating: UserRating): UserRatingResponse {
     return {
@@ -27,6 +31,10 @@ export default class UserRatingView {
 
   static error(message: string): ErrorResponse {
     return { error: message };
+  }
+
+  static success(message: string): SuccessResponse {
+    return { success: message };
   }
 
   static manyErrors(errorMessages: string[]): ErrorResponse[] {
