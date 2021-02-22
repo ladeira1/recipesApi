@@ -4,7 +4,7 @@ import app from '../src/app';
 import connection from '../src/database/connection';
 import User from '../src/entities/User';
 
-describe('Testing User creation', () => {
+describe('Testing create User', () => {
   const newUser = {
     name: 'joao',
     email: 'joao@test.com',
@@ -77,7 +77,7 @@ describe('Testing User creation', () => {
   });
 });
 
-describe('Testing User login', () => {
+describe('Testing login User', () => {
   const newUser = {
     name: 'joao',
     email: 'joao@test.com',
@@ -143,7 +143,7 @@ describe('Testing User login', () => {
   });
 });
 
-describe('Testing User delete', () => {
+describe('Testing delete User', () => {
   const newUser = {
     name: 'joao',
     email: 'joao@test.com',
@@ -183,7 +183,7 @@ describe('Testing User delete', () => {
   });
 });
 
-describe('Testing User update', () => {
+describe('Testing update User', () => {
   const filePath = `${__dirname}/test-image/test.jpg`;
   const newUser = {
     name: 'joao',
@@ -248,7 +248,7 @@ describe('Testing User update', () => {
   });
 });
 
-describe('Testing User get', () => {
+describe('Testing get User', () => {
   const newUser = {
     name: 'joao',
     email: 'joao@test.com',
@@ -261,7 +261,6 @@ describe('Testing User get', () => {
     password: '123123',
   };
 
-  let token: string;
   let userId: string;
 
   beforeAll(async () => {
@@ -270,8 +269,7 @@ describe('Testing User get', () => {
 
   beforeEach(async () => {
     await connection.clear(User);
-    const userResponse = await request(app).post('/user').send(newUser);
-    token = userResponse.body.token;
+    await request(app).post('/user').send(newUser);
 
     const authResponse = await request(app).post('/user/auth').send(authUser);
     userId = authResponse.body.id;

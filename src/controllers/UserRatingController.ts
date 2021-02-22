@@ -82,8 +82,8 @@ export default class UserRatingController {
             recipe.rating = newRatingValue / counter;
           }
 
-          await transactionalEntityManager.save(newRating);
-          await transactionalEntityManager.save(recipe);
+          await transactionalEntityManager.save(UserRating, newRating);
+          await transactionalEntityManager.save(Recipe, recipe);
 
           return res.status(201).json(UserRatingView.render(newRating));
         } catch (err) {
@@ -272,7 +272,7 @@ export default class UserRatingController {
           await transactionalEntityManager.delete(UserRating, currentRating);
           await transactionalEntityManager.save(recipe);
 
-          return res.status(204);
+          return res.status(204).json();
         } catch (err) {
           return res
             .status(400)
