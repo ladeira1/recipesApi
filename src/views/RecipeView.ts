@@ -27,7 +27,7 @@ interface GeneralRecipeResponse {
 
 interface ManyRecipesResponse {
   recipes: GeneralRecipeResponse[];
-  next: { limit: number; page: number };
+  next: { limit: number; page: number } | null;
 }
 
 interface ErrorResponse {
@@ -69,9 +69,15 @@ export default class RecipeView {
 
   static renderMany(
     recipes: Recipe[],
-    page: number,
+    page: number | null,
     limit: number,
   ): ManyRecipesResponse {
+    if (!page) {
+      return {
+        recipes: recipes.map(recipe => this.renderGeneral(recipe)),
+        next: null,
+      };
+    }
     return {
       recipes: recipes.map(recipe => this.renderGeneral(recipe)),
       next: { page, limit },

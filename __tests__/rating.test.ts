@@ -101,8 +101,8 @@ describe('Testing create UserRating', () => {
         expect(recipeResponse.status).toBe(200);
         expect(recipeResponse.body.rating).toBe(4);
         done();
-      }, 1000);
-    }, 1000);
+      }, 3000);
+    }, 3000);
   });
 
   it('should not rate a recipe when rating is higher than 5', async done => {

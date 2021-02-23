@@ -78,8 +78,12 @@ const getTemplate = async (
         recipes = null;
     }
 
-    if (!recipes) {
+    if (!recipes || recipes.length === 0) {
       return res.status(401).json(RecipeView.error('Recipe not found'));
+    }
+
+    if (recipes.length < limit) {
+      return res.status(200).json(RecipeView.renderMany(recipes, null, limit));
     }
 
     return res
