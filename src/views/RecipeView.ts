@@ -7,16 +7,14 @@ interface RecipeResponse {
   imageUrl: string | null;
   description: string;
   ingredients: string;
+  steps: string;
   preparationTime: number;
   serves: number;
+  rating: number;
   user: {
     name: string;
     imageUrl: string | null;
   };
-  steps: {
-    id: number;
-    content: string;
-  }[];
 }
 
 interface GeneralRecipeResponse {
@@ -29,7 +27,7 @@ interface GeneralRecipeResponse {
 
 interface ManyRecipesResponse {
   recipes: GeneralRecipeResponse[];
-  next: { limit: number; page: number };
+  next: { limit: number; page: number } | null;
 }
 
 interface ErrorResponse {
@@ -41,23 +39,21 @@ interface SuccessResponse {
 }
 
 export default class RecipeView {
-  static render(
-    recipe: Recipe,
-    steps?: { id: number; content: string }[],
-  ): RecipeResponse {
+  static render(recipe: Recipe): RecipeResponse {
     return {
       id: recipe.id,
       name: recipe.name,
       imageUrl: getImageUrl(recipe.imageUrl),
       description: recipe.description,
       ingredients: recipe.ingredients,
+      steps: recipe.steps,
       preparationTime: recipe.preparationTime,
       serves: recipe.serves,
+      rating: Number(recipe.rating),
       user: {
         name: recipe.user.name,
         imageUrl: getImageUrl(recipe.user.profileImageUrl),
       },
-      steps: steps || recipe.steps,
     };
   }
 
@@ -73,9 +69,15 @@ export default class RecipeView {
 
   static renderMany(
     recipes: Recipe[],
-    page: number,
+    page: number | null,
     limit: number,
   ): ManyRecipesResponse {
+    if (!page) {
+      return {
+        recipes: recipes.map(recipe => this.renderGeneral(recipe)),
+        next: null,
+      };
+    }
     return {
       recipes: recipes.map(recipe => this.renderGeneral(recipe)),
       next: { page, limit },

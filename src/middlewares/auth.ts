@@ -14,13 +14,13 @@ const authMiddleware = async (
   const { authorization } = req.headers;
 
   if (!authorization) {
-    return res.status(400).json('Token not found');
+    return res.status(400).json({ error: 'Token not found' });
   }
 
   const [bearer, token] = authorization.split(' ');
 
   if (bearer !== 'Bearer') {
-    return res.status(401).json('Token does not match Bearer');
+    return res.status(401).json({ error: 'Token does not match Bearer' });
   }
 
   try {
@@ -35,7 +35,7 @@ const authMiddleware = async (
 
     next();
   } catch (err) {
-    return res.status(401).json('Invalid token');
+    return res.status(401).json({ error: 'Invalid token' });
   }
 };
 

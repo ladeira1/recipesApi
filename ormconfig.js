@@ -1,7 +1,8 @@
 module.exports = [
   {
     name: 'test',
-    type: 'sqlite',
+    type: 'postgres',
+    url: process.env.TEST_DATABASE_URL,
     database: './__tests__/database/database.sqlite',
     synchronize: true,
     migrations: ['src/database/migrations/*.ts'],

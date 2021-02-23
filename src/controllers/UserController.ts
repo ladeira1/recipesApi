@@ -129,12 +129,9 @@ export default class UserController {
           )
           .catch(err => res.status(401).json(UserView.error(err.message)));
       }
-
       await usersRepository.delete({ id: req.userId });
 
-      return res
-        .status(200)
-        .json(UserView.success('Account successfully deleted'));
+      return res.status(204).json();
     } catch (err) {
       return res.status(401).json(UserView.error(err.message));
     }
@@ -191,7 +188,7 @@ export default class UserController {
 
       await usersRepository.save(user);
       return res
-        .status(201)
+        .status(200)
         .json(UserView.renderToken(user, getToken(user.id)));
     } catch (err) {
       return res.status(401).json(UserView.error(err.message));

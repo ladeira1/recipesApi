@@ -2,6 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import bcrypt from 'bcryptjs';
 
 import Recipe from './Recipe';
+import UserRating from './UserRating';
 
 @Entity('User')
 export default class User {
@@ -30,6 +31,9 @@ export default class User {
 
   @OneToMany(() => Recipe, recipe => recipe.user)
   recipes?: Recipe[];
+
+  @OneToMany(() => UserRating, userRating => userRating.user)
+  userRatings: UserRating[];
 
   hashPassword(password: string): void {
     this.password = bcrypt.hashSync(password, 8);

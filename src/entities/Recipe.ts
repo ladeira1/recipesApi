@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 
 import User from './User';
-import Step from './Step';
+import UserRating from './UserRating';
 
 @Entity('Recipe')
 @Unique(['name', 'user'])
@@ -34,8 +34,11 @@ export default class Recipe {
   @Column({ type: 'varchar', length: 200 })
   description: string;
 
-  @Column({ type: 'varchar', length: 300 })
+  @Column({ type: 'varchar', length: 400 })
   ingredients: string;
+
+  @Column({ type: 'varchar' })
+  steps: string;
 
   @Column({ name: 'preparation_time', type: 'integer' })
   preparationTime: number;
@@ -49,6 +52,6 @@ export default class Recipe {
   @Column({ name: 'created_at', type: 'date' })
   createdAt: Date;
 
-  @OneToMany(() => Step, step => step.recipe, { eager: true })
-  steps: Step[];
+  @OneToMany(() => UserRating, userRating => userRating.recipe)
+  userRatings: UserRating[];
 }

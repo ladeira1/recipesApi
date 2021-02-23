@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getConnection, getRepository, Like } from 'typeorm';
+import { getRepository, Like } from 'typeorm';
 import * as Yup from 'yup';
 import { fs } from 'mz';
 import path from 'path';
@@ -7,7 +7,6 @@ import path from 'path';
 import User from '../entities/User';
 import Recipe from '../entities/Recipe';
 import RecipeView from '../views/RecipeView';
-import StepController from './StepController';
 
 type TemplateTypes = 'recent' | 'top' | 'name';
 
@@ -79,8 +78,12 @@ const getTemplate = async (
         recipes = null;
     }
 
-    if (!recipes) {
+    if (!recipes || recipes.length === 0) {
       return res.status(401).json(RecipeView.error('Recipe not found'));
+    }
+
+    if (recipes.length < limit) {
+      return res.status(200).json(RecipeView.renderMany(recipes, null, limit));
     }
 
     return res
@@ -111,8 +114,7 @@ export default class RecipeController {
           if (value === undefined) return false;
           if (!value.length) return true;
           return value[0].size <= 2000000;
-        })
-        .nullable(),
+        }),
       description: Yup.string().required('Description must be informed'),
       ingredients: Yup.string().required('Ingredients must be informed'),
       preparationTime: Yup.number().required(
@@ -121,8 +123,9 @@ export default class RecipeController {
       serves: Yup.number().required(
         'The amount of people it serves must be informed',
       ),
-      steps: Yup.array(Yup.string()).required('Steps must be informed'),
+      steps: Yup.string().required('Steps must be informed'),
     });
+
     // validate request data
     const validationValues = {
       name,
@@ -148,49 +151,35 @@ export default class RecipeController {
 
       return res.status(401).json(RecipeView.manyErrors(validation));
     }
+
     // create recipe
-    return getConnection()
-      .transaction(async transactionalEntityManager => {
-        try {
-          const user = await transactionalEntityManager.findOne(User, {
-            where: { id: req.userId },
-          });
+    try {
+      const usersRepository = getRepository(User);
+      const user = await usersRepository.findOne({ where: { id: req.userId } });
 
-          if (!user) {
-            return res.status(401).json('User not found');
-          }
+      if (!user) {
+        return res.status(401).json(RecipeView.error('User not found'));
+      }
 
-          const recipe = transactionalEntityManager.create(Recipe, {
-            name,
-            imageUrl: image.filename,
-            description,
-            ingredients,
-            preparationTime,
-            serves,
-            rating: 0,
-            createdAt: new Date(),
-            user,
-          });
+      const recipesRepository = getRepository(Recipe);
+      const recipe = recipesRepository.create({
+        name,
+        imageUrl: image.filename,
+        description,
+        ingredients,
+        steps,
+        preparationTime,
+        serves,
+        rating: 0,
+        createdAt: new Date(),
+        user,
+      });
 
-          await transactionalEntityManager.save(recipe);
-
-          // create steps
-          const createdSteps = await StepController.createSteps(
-            steps,
-            recipe,
-            transactionalEntityManager,
-          );
-
-          if ('error' in createdSteps) {
-            return res.status(400).json(RecipeView.error(createdSteps.error));
-          }
-
-          return res.status(201).json(RecipeView.render(recipe, createdSteps));
-        } catch (err) {
-          return res.status(400).json(RecipeView.error(String(err.message)));
-        }
-      })
-      .then(response => response);
+      await recipesRepository.save(recipe);
+      return res.status(201).json(RecipeView.render(recipe));
+    } catch (err) {
+      return res.status(400).json(RecipeView.error(String(err.message)));
+    }
   };
 
   static index = async (req: Request, res: Response): Promise<Response> => {
@@ -279,70 +268,61 @@ export default class RecipeController {
       return res.status(401).json(RecipeView.manyErrors(validation));
     }
 
-    return getConnection()
-      .transaction(async transactionalEntityManager => {
-        try {
-          const recipe = await transactionalEntityManager.findOne(Recipe, {
-            where: { id },
-            relations: ['user'],
-          });
+    try {
+      const recipesRepository = getRepository(Recipe);
+      const recipe = await recipesRepository.findOne({
+        where: { id },
+        relations: ['user'],
+      });
 
-          if (!recipe) {
-            return res.status(401).json(RecipeView.error('Recipe not found'));
-          }
+      if (!recipe) {
+        return res.status(401).json(RecipeView.error('Recipe not found'));
+      }
 
-          if (name) {
-            recipe.name = name;
-          }
+      if (name) {
+        recipe.name = name;
+      }
 
-          if (image) {
-            await fs
-              .unlink(
-                path.resolve(__dirname, '..', '..', 'uploads', recipe.imageUrl),
-              )
-              .catch(err =>
-                res.status(401).json(RecipeView.error(err.message)),
-              );
+      if (image) {
+        await fs
+          .unlink(
+            path.resolve(__dirname, '..', '..', 'uploads', recipe.imageUrl),
+          )
+          .catch(err => res.status(401).json(RecipeView.error(err.message)));
 
-            recipe.imageUrl = image.filename;
-          }
+        recipe.imageUrl = image.filename;
+      }
 
-          if (description) {
-            recipe.description = description;
-          }
+      if (description) {
+        recipe.description = description;
+      }
 
-          if (ingredients) {
-            recipe.ingredients = ingredients;
-          }
+      if (ingredients) {
+        recipe.ingredients = ingredients;
+      }
 
-          if (preparationTime) {
-            recipe.preparationTime = Number(preparationTime);
-          }
+      if (steps) {
+        recipe.steps = steps;
+      }
 
-          if (serves) {
-            recipe.serves = Number(serves);
-          }
+      if (preparationTime) {
+        recipe.preparationTime = Number(preparationTime);
+      }
 
-          if (steps) {
-            const errorResponse = await StepController.updateSteps(steps);
-            if (errorResponse) {
-              return res
-                .status(401)
-                .json(RecipeView.error(errorResponse.error));
-            }
-          }
+      if (serves) {
+        recipe.serves = Number(serves);
+      }
 
-          await transactionalEntityManager.save(recipe);
-          return res.status(200).json(RecipeView.render(recipe));
-        } catch (err) {
-          return res.status(401).json(RecipeView.error(err.message));
-        }
-      })
-      .then(r => r);
+      await recipesRepository.save(recipe);
+      return res.status(200).json(RecipeView.render(recipe));
+    } catch (err) {
+      return res.status(401).json(RecipeView.error(err.message));
+    }
   };
 
   static delete = async (req: Request, res: Response): Promise<Response> => {
     const { id } = req.params;
+
     try {
       const usersRepository = getRepository(User);
       const user = await usersRepository.findOne({ where: { id: req.userId } });
@@ -367,9 +347,7 @@ export default class RecipeController {
         .catch(err => res.status(401).json(RecipeView.error(err.message)));
 
       await recipesRepository.delete({ id: recipe.id });
-      return res
-        .status(200)
-        .json(RecipeView.message('Recipe succesfully deleted'));
+      return res.status(204).json();
     } catch (err) {
       return res.status(401).json(RecipeView.error(err.message));
     }
