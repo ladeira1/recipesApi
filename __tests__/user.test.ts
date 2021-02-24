@@ -2,7 +2,7 @@ import request from 'supertest';
 import createTypeormConnection from '../src/utils/createTypeormConnection';
 import app from '../src/app';
 import connection from '../src/database/connection';
-import User from '../src/entities/User';
+import User from '../src/models/User';
 
 describe('Testing create User', () => {
   const newUser = {

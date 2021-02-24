@@ -3,7 +3,7 @@ import { getRepository } from 'typeorm';
 import * as Yup from 'yup';
 import path from 'path';
 import { fs } from 'mz';
-import User from '../entities/User';
+import User from '../models/User';
 import UserView from '../views/UserView';
 
 import getToken from '../utils/getToken';

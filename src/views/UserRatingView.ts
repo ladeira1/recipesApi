@@ -1,4 +1,4 @@
-import UserRating from '../entities/UserRating';
+import UserRating from '../models/UserRating';
 
 interface UserRatingResponse {
   id: number;

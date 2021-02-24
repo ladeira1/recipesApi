@@ -1,11 +1,10 @@
 import { EntityTarget, getConnection } from 'typeorm';
 import createTypeormConnection from '../utils/createTypeormConnection';
 
-import User from '../entities/User';
-import Recipe from '../entities/Recipe';
-import Step from '../entities/Step';
+import User from '../models/User';
+import Recipe from '../models/Recipe';
 
-type ClearType = User | Recipe | Step;
+type ClearType = User | Recipe;
 
 const connection = {
   async create(): Promise<void> {

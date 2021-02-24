@@ -1,4 +1,4 @@
-import Recipe from '../entities/Recipe';
+import Recipe from '../models/Recipe';
 import getImageUrl from '../utils/getImageUrl';
 
 interface RecipeResponse {
