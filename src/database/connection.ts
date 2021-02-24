@@ -3,8 +3,10 @@ import createTypeormConnection from '../utils/createTypeormConnection';
 
 import User from '../models/User';
 import Recipe from '../models/Recipe';
+import UserRating from '../models/UserRating';
+import Review from '../models/Review';
 
-type ClearType = User | Recipe;
+type ClearType = User | Recipe | UserRating | Review;
 
 const connection = {
   async create(): Promise<void> {

@@ -1,3 +1,4 @@
+import DefaultView from './DefaultView';
 import User from '../models/User';
 import getImageUrl from '../utils/getImageUrl';
 
@@ -9,15 +10,7 @@ interface UserResponse {
   imageUrl: string | null;
 }
 
-interface ErrorResponse {
-  error: string;
-}
-
-interface SuccessResponse {
-  success: string;
-}
-
-export default class UserView {
+export default class UserView extends DefaultView {
   static render(user: User): UserResponse {
     return {
       id: user.id,
@@ -35,17 +28,5 @@ export default class UserView {
       token,
       imageUrl: getImageUrl(user.profileImageUrl),
     };
-  }
-
-  static error(message: string): ErrorResponse {
-    return { error: message };
-  }
-
-  static success(message: string): SuccessResponse {
-    return { success: message };
-  }
-
-  static manyErrors(errorMessages: string[]): ErrorResponse[] {
-    return errorMessages.map(err => this.error(err));
   }
 }

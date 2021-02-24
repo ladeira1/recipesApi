@@ -6,10 +6,10 @@ module.exports = [
     database: './__tests__/database/database.sqlite',
     synchronize: true,
     migrations: ['src/database/migrations/*.ts'],
-    entities: ['src/entities/*.ts'],
+    entities: ['src/models/*.ts'],
     cli: {
       migrationsDir: './src/database/migrations',
-      entitiesDir: 'src/entities',
+      entitiesDir: 'src/models',
     },
   },
   {
@@ -18,10 +18,10 @@ module.exports = [
     url: process.env.DATABASE_URL,
     synchronize: true,
     migrations: ['src/database/migrations/*.ts'],
-    entities: ['src/entities/*.ts'],
+    entities: ['src/models/*.ts'],
     cli: {
       migrationsDir: './src/database/migrations',
-      entitiesDir: 'src/entities',
+      entitiesDir: 'src/models',
     },
   },
 ];

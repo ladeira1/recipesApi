@@ -1,3 +1,4 @@
+import DefaultView from './DefaultView';
 import Recipe from '../models/Recipe';
 import getImageUrl from '../utils/getImageUrl';
 
@@ -30,15 +31,7 @@ interface ManyRecipesResponse {
   next: { limit: number; page: number } | null;
 }
 
-interface ErrorResponse {
-  error: string;
-}
-
-interface SuccessResponse {
-  success: string;
-}
-
-export default class RecipeView {
+export default class RecipeView extends DefaultView {
   static render(recipe: Recipe): RecipeResponse {
     return {
       id: recipe.id,
@@ -82,17 +75,5 @@ export default class RecipeView {
       recipes: recipes.map(recipe => this.renderGeneral(recipe)),
       next: { page, limit },
     };
-  }
-
-  static message(message: string): SuccessResponse {
-    return { success: message };
-  }
-
-  static error(message: string): ErrorResponse {
-    return { error: message };
-  }
-
-  static manyErrors(errorMessages: string[]): ErrorResponse[] {
-    return errorMessages.map(err => this.error(err));
   }
 }

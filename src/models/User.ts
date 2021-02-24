@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 
 import Recipe from './Recipe';
 import UserRating from './UserRating';
+import Review from './Review';
 
 @Entity('User')
 export default class User {
@@ -31,6 +32,9 @@ export default class User {
 
   @OneToMany(() => Recipe, recipe => recipe.user)
   recipes?: Recipe[];
+
+  @OneToMany(() => Review, review => review.user)
+  reviews?: Review[];
 
   @OneToMany(() => UserRating, userRating => userRating.user)
   userRatings: UserRating[];

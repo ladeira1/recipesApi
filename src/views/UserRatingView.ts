@@ -1,3 +1,4 @@
+import DefaultView from './DefaultView';
 import UserRating from '../models/UserRating';
 
 interface UserRatingResponse {
@@ -7,15 +8,7 @@ interface UserRatingResponse {
   rating: number;
 }
 
-interface ErrorResponse {
-  error: string;
-}
-
-interface SuccessResponse {
-  success: string;
-}
-
-export default class UserRatingView {
+export default class UserRatingView extends DefaultView {
   static render(userRating: UserRating): UserRatingResponse {
     return {
       id: userRating.id,
@@ -27,17 +20,5 @@ export default class UserRatingView {
 
   static renderMany(userRatings: UserRating[]): UserRatingResponse[] {
     return userRatings.map(userRating => this.render(userRating));
-  }
-
-  static error(message: string): ErrorResponse {
-    return { error: message };
-  }
-
-  static success(message: string): SuccessResponse {
-    return { success: message };
-  }
-
-  static manyErrors(errorMessages: string[]): ErrorResponse[] {
-    return errorMessages.map(err => this.error(err));
   }
 }
