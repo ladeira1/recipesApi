@@ -5,10 +5,11 @@ import uploadConfig from './config/upload';
 
 import UserController from './controllers/UserController';
 import RecipeController from './controllers/RecipeController';
-
-import authMiddleware from './middlewares/auth';
 import UserRatingController from './controllers/UserRatingController';
 import ReviewController from './controllers/ReviewController';
+import FavoriteController from './controllers/FavoriteController';
+
+import authMiddleware from './middlewares/auth';
 
 const routes = Router();
 const upload = multer(uploadConfig);
@@ -51,10 +52,22 @@ routes.put('/rating', authMiddleware, UserRatingController.update);
 routes.delete('/rating/:id', authMiddleware, UserRatingController.delete);
 
 // review a recipe
-routes.get('/review/:id', ReviewController.index);
-routes.get('/review/:id/:page/:limit', ReviewController.getMany);
-routes.post('/review', authMiddleware, ReviewController.create);
-routes.put('/review', authMiddleware, ReviewController.update);
-routes.delete('/review/:id', authMiddleware, ReviewController.delete);
+routes.get('/recipe/review/:id', ReviewController.index);
+routes.get('/recipe/review/:id/:page/:limit', ReviewController.getMany);
+routes.post('/recipe/review', authMiddleware, ReviewController.create);
+routes.put('/recipe/review', authMiddleware, ReviewController.update);
+routes.delete('/recipe/review/:id', authMiddleware, ReviewController.delete);
 
+// favorite a recipe
+routes.get(
+  '/recipe/favorite/:page/:limit',
+  authMiddleware,
+  FavoriteController.getMany,
+);
+routes.post('/recipe/favorite', authMiddleware, FavoriteController.create);
+routes.delete(
+  '/recipe/favorite/:id',
+  authMiddleware,
+  FavoriteController.delete,
+);
 export default routes;
