@@ -62,8 +62,12 @@ routes.delete('/recipe/review/:id', authMiddleware, ReviewController.delete);
 routes.get(
   '/recipe/favorite/:page/:limit',
   authMiddleware,
-  FavoriteController.getUsersFavorites,
+  FavoriteController.getMany,
 );
 routes.post('/recipe/favorite', authMiddleware, FavoriteController.create);
-
+routes.delete(
+  '/recipe/favorite/:id',
+  authMiddleware,
+  FavoriteController.delete,
+);
 export default routes;

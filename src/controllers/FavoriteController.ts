@@ -67,10 +67,7 @@ export default class RecipeController {
     }
   };
 
-  static getUsersFavorites = async (
-    req: Request,
-    res: Response,
-  ): Promise<Response> => {
+  static getMany = async (req: Request, res: Response): Promise<Response> => {
     const page = Number(req.params.page);
     const limit = Number(req.params.limit);
 
@@ -127,6 +124,33 @@ export default class RecipeController {
       return res
         .status(200)
         .json(FavoriteView.renderMany(favorites, page + 1, limit));
+    } catch (err) {
+      return res.status(401).json(FavoriteView.error(err.message));
+    }
+  };
+
+  static delete = async (req: Request, res: Response): Promise<Response> => {
+    const { id } = req.params;
+
+    try {
+      const usersRepository = getRepository(User);
+      const user = await usersRepository.findOne({ where: { id: req.userId } });
+
+      if (!user) {
+        return res.status(401).json(FavoriteView.error('User not found'));
+      }
+
+      const favoritesRepository = getRepository(Favorite);
+      const favorite = await favoritesRepository.findOne({ where: { id } });
+
+      if (!favorite) {
+        return res
+          .status(401)
+          .json(FavoriteView.error('Favorite recipe not found'));
+      }
+
+      await favoritesRepository.delete(favorite);
+      return res.status(204).json();
     } catch (err) {
       return res.status(401).json(FavoriteView.error(err.message));
     }
