@@ -14,11 +14,16 @@ export default class Favorite {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, user => user.favorites)
+  @ManyToOne(() => User, user => user.favorites, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   user: User;
 
-  @ManyToOne(() => Recipe, recipe => recipe.favorites)
+  @ManyToOne(() => Recipe, recipe => recipe.favorites, {
+    onDelete: 'CASCADE',
+    eager: true,
+  })
   @JoinColumn()
   recipe: Recipe;
 
