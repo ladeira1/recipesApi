@@ -127,18 +127,11 @@ export default class UserRatingController {
     return getConnection()
       .transaction(async transactionalEntityManager => {
         try {
-          const user = await transactionalEntityManager.findOne(User, {
-            where: { id: req.userId },
-          });
-
-          if (!user) {
-            return res.status(401).json(UserRatingView.error('User not found'));
-          }
-
           const currentRating = await transactionalEntityManager.findOne(
             UserRating,
             {
-              where: { id, user },
+              where: { id },
+              relations: ['user'],
             },
           );
 
@@ -146,6 +139,14 @@ export default class UserRatingController {
             return res
               .status(401)
               .json(UserRatingView.error('Rating not found'));
+          }
+
+          if (currentRating.user.id !== req.userId) {
+            return res
+              .status(401)
+              .json(
+                UserRatingView.error('You can only update your own ratings'),
+              );
           }
 
           const recipe = await transactionalEntityManager.findOne(Recipe, {
@@ -231,6 +232,7 @@ export default class UserRatingController {
             UserRating,
             {
               where: { id, user },
+              relations: ['user'],
             },
           );
 
@@ -238,6 +240,14 @@ export default class UserRatingController {
             return res
               .status(401)
               .json(UserRatingView.error('Rating not found'));
+          }
+
+          if (currentRating.user.id !== req.userId) {
+            return res
+              .status(401)
+              .json(
+                UserRatingView.error('You can only update your own ratings'),
+              );
           }
 
           const recipe = await transactionalEntityManager.findOne(Recipe, {

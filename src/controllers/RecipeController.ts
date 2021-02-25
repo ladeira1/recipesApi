@@ -324,14 +324,12 @@ export default class RecipeController {
     const { id } = req.params;
 
     try {
-      const usersRepository = getRepository(User);
-      const user = await usersRepository.findOne({ where: { id: req.userId } });
-      if (!user) {
-        return res.status(401).json(RecipeView.error('User not found'));
-      }
-
       const recipesRepository = getRepository(Recipe);
-      const recipe = await recipesRepository.findOne({ where: { id } });
+      const recipe = await recipesRepository.findOne({
+        where: { id },
+        relations: ['user'],
+      });
+
       if (!recipe) {
         return res.status(401).json(RecipeView.error('Recipe not found'));
       }
