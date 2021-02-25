@@ -8,6 +8,7 @@ import {
   Unique,
   OneToMany,
 } from 'typeorm';
+import Favorite from './Favorite';
 import Review from './Review';
 
 import User from './User';
@@ -58,4 +59,7 @@ export default class Recipe {
 
   @OneToMany(() => Review, review => review.recipe)
   reviews: Review[];
+
+  @OneToMany(() => Favorite, favorite => favorite.recipe)
+  favorites: Favorite[];
 }

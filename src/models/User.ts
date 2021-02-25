@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import Recipe from './Recipe';
 import UserRating from './UserRating';
 import Review from './Review';
+import Favorite from './Favorite';
 
 @Entity('User')
 export default class User {
@@ -38,6 +39,9 @@ export default class User {
 
   @OneToMany(() => UserRating, userRating => userRating.user)
   userRatings: UserRating[];
+
+  @OneToMany(() => Favorite, favorite => favorite.user)
+  favorites: Favorite[];
 
   hashPassword(password: string): void {
     this.password = bcrypt.hashSync(password, 8);

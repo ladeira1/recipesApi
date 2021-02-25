@@ -172,18 +172,20 @@ export default class ReviewController {
     }
 
     try {
+      const usersRepository = getRepository(User);
+      const user = await usersRepository.findOne({ where: { id: req.userId } });
+
+      if (!user) {
+        return res.status(401).json(ReviewView.error('User not found'));
+      }
+
       const reviewsRepository = getRepository(Review);
       const review = await reviewsRepository.findOne({
-        where: { id },
-        relations: ['user'],
+        where: { user, id },
       });
 
       if (!review) {
         return res.status(401).json(ReviewView.error('Review not found'));
-      }
-
-      if (review?.user.id !== req.userId) {
-        return res.status(401).json('You can only update your own reviews');
       }
 
       review.content = content;
@@ -199,18 +201,18 @@ export default class ReviewController {
     const { id } = req.params;
 
     try {
+      const usersRepository = getRepository(User);
+      const user = await usersRepository.findOne({ where: { id: req.userId } });
+
+      if (!user) {
+        return res.status(401).json(ReviewView.error('User not found'));
+      }
+
       const reviewsRepository = getRepository(Review);
-      const review = await reviewsRepository.findOne({
-        where: { id },
-        relations: ['user'],
-      });
+      const review = await reviewsRepository.findOne({ where: { id } });
 
       if (!review) {
         return res.status(401).json(ReviewView.error('Review not found'));
-      }
-
-      if (review?.user.id !== req.userId) {
-        return res.status(401).json('You can only delete your own reviews');
       }
 
       await reviewsRepository.delete(review);
