@@ -4,8 +4,8 @@ import createTypeormConnection from '../src/utils/createTypeormConnection';
 import app from '../src/app';
 import connection from '../src/database/connection';
 
-import User from '../src/entities/User';
-import Recipe from '../src/entities/Recipe';
+import User from '../src/models/User';
+import Recipe from '../src/models/Recipe';
 
 describe('Testing create Recipe', () => {
   let token: string;

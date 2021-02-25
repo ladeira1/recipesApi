@@ -2,9 +2,9 @@ import { getConnection, Not, getRepository } from 'typeorm';
 import { Request, Response } from 'express';
 import * as Yup from 'yup';
 
-import User from '../entities/User';
-import Recipe from '../entities/Recipe';
-import UserRating from '../entities/UserRating';
+import User from '../models/User';
+import Recipe from '../models/Recipe';
+import UserRating from '../models/UserRating';
 
 import UserRatingView from '../views/UserRatingView';
 

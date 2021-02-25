@@ -1,12 +1,12 @@
 import request from 'supertest';
 
-import UserRating from '../src/entities/UserRating';
+import UserRating from '../src/models/UserRating';
 import createTypeormConnection from '../src/utils/createTypeormConnection';
 import app from '../src/app';
 import connection from '../src/database/connection';
 
-import User from '../src/entities/User';
-import Recipe from '../src/entities/Recipe';
+import User from '../src/models/User';
+import Recipe from '../src/models/Recipe';
 
 jest.setTimeout(30000);
 

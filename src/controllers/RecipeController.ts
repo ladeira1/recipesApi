@@ -4,8 +4,8 @@ import * as Yup from 'yup';
 import { fs } from 'mz';
 import path from 'path';
 
-import User from '../entities/User';
-import Recipe from '../entities/Recipe';
+import User from '../models/User';
+import Recipe from '../models/Recipe';
 import RecipeView from '../views/RecipeView';
 
 type TemplateTypes = 'recent' | 'top' | 'name';
