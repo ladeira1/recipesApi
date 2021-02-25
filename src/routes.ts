@@ -9,7 +9,6 @@ import RecipeController from './controllers/RecipeController';
 import authMiddleware from './middlewares/auth';
 import UserRatingController from './controllers/UserRatingController';
 import ReviewController from './controllers/ReviewController';
-import Review from './models/Review';
 
 const routes = Router();
 const upload = multer(uploadConfig);
@@ -55,5 +54,6 @@ routes.delete('/rating/:id', authMiddleware, UserRatingController.delete);
 routes.get('/review/:id', ReviewController.index);
 routes.get('/review/:id/:page/:limit', ReviewController.getMany);
 routes.post('/review', authMiddleware, ReviewController.create);
+routes.put('/review', authMiddleware, ReviewController.update);
 
 export default routes;

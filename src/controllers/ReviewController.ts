@@ -144,4 +144,56 @@ export default class ReviewController {
       return res.status(401).json(ReviewView.error(err.message));
     }
   };
+
+  static update = async (req: Request, res: Response): Promise<Response> => {
+    const { id, content } = req.body;
+
+    const schema = Yup.object().shape({
+      id: Yup.number().required('Review must be informed'),
+      content: Yup.string().required('Review content must be informed'),
+    });
+
+    // validate request data
+    const validationValues = { id, content };
+
+    if (!(await schema.isValid(validationValues))) {
+      const validation = await schema
+        .validate(validationValues, {
+          abortEarly: false,
+        })
+        .catch(err => {
+          const errors = err.errors.map((message: string) => {
+            return message;
+          });
+          return errors;
+        });
+
+      return res.status(401).json(ReviewView.manyErrors(validation));
+    }
+
+    try {
+      const usersRepository = getRepository(User);
+      const user = await usersRepository.findOne({ where: { id: req.userId } });
+
+      if (!user) {
+        return res.status(401).json(ReviewView.error('User not found'));
+      }
+
+      const reviewsRepository = getRepository(Review);
+      const review = await reviewsRepository.findOne({
+        where: { user, id },
+      });
+
+      if (!review) {
+        return res.status(401).json(ReviewView.error('Review not found'));
+      }
+
+      review.content = content;
+
+      await reviewsRepository.save(review);
+      return res.status(200).json(ReviewView.render(review));
+    } catch (err) {
+      return res.status(401).json(ReviewView.error(err.message));
+    }
+  };
 }
