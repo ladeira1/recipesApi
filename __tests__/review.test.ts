@@ -343,3 +343,99 @@ describe('Testing update Review', () => {
     done();
   });
 });
+
+describe('Testing delete Review', () => {
+  const filePath = `${__dirname}/test-image/test.jpg`;
+  let token: string;
+  let recipeId: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let review: any;
+  let reviewUserToken: string;
+
+  beforeAll(async done => {
+    await createTypeormConnection();
+    done();
+  });
+
+  beforeEach(async done => {
+    await connection.clear(User);
+    await connection.clear(Recipe);
+    await connection.clear(Review);
+
+    const userResponse = await request(app).post('/user').send({
+      name: 'joao',
+      email: 'joao@test.com',
+      password: '123123',
+      passwordConfirmation: '123123',
+    });
+
+    token = userResponse.body.token;
+
+    const reviewUserResponse = await request(app).post('/user').send({
+      name: 'ratingUser',
+      email: 'rating@user.com',
+      password: '123123',
+      passwordConfirmation: '123123',
+    });
+
+    reviewUserToken = reviewUserResponse.body.token;
+
+    const recipeResponse = await request(app)
+      .post('/recipe')
+      .field('name', 'test recipe')
+      .field('description', 'test description')
+      .field('ingredients', 'ingredient 1, ingredient 2, ingredient 3')
+      .field('preparationTime', 40)
+      .field('serves', 2)
+      .field('steps', 'first step, second step, third last, last step')
+      .attach('image', filePath)
+      .set('Authorization', `Bearer ${token}`);
+
+    recipeId = recipeResponse.body.id;
+    // forcing it to wait until transaction is done
+    setTimeout(async () => {
+      const response = await request(app)
+        .post('/review')
+        .send({
+          recipeId,
+          content: 'no creativity here',
+        })
+        .set('Authorization', `Bearer ${reviewUserResponse.body.token}`);
+
+      review = response.body;
+      done();
+    }, 3000);
+  });
+
+  afterAll(async done => {
+    await connection.close();
+    done();
+  });
+
+  it('should delete review', async done => {
+    const response = await request(app)
+      .delete(`/review/${review.id}`)
+      .set('Authorization', `Bearer ${reviewUserToken}`);
+
+    expect(response.status).toBe(204);
+    done();
+  });
+
+  it('should not delete a review when id is invalid', async done => {
+    const response = await request(app)
+      .delete(`/review/-12312412`)
+      .set('Authorization', `Bearer ${reviewUserToken}`);
+
+    expect(response.status).toBe(401);
+    expect(response.body).toMatchObject({ error: 'Review not found' });
+    done();
+  });
+
+  it('should not delete a review when ino token in sent', async done => {
+    const response = await request(app).delete(`/review/${review.id}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toMatchObject({ error: 'Token not found' });
+    done();
+  });
+});

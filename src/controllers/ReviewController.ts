@@ -196,4 +196,29 @@ export default class ReviewController {
       return res.status(401).json(ReviewView.error(err.message));
     }
   };
+
+  static delete = async (req: Request, res: Response): Promise<Response> => {
+    const { id } = req.params;
+
+    try {
+      const usersRepository = getRepository(User);
+      const user = await usersRepository.findOne({ where: { id: req.userId } });
+
+      if (!user) {
+        return res.status(401).json(ReviewView.error('User not found'));
+      }
+
+      const reviewsRepository = getRepository(Review);
+      const review = await reviewsRepository.findOne({ where: { id } });
+
+      if (!review) {
+        return res.status(401).json(ReviewView.error('Review not found'));
+      }
+
+      await reviewsRepository.delete(review);
+      return res.status(204).json();
+    } catch (err) {
+      return res.status(401).json(ReviewView.error(err.message));
+    }
+  };
 }

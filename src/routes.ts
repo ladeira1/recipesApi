@@ -55,5 +55,6 @@ routes.get('/review/:id', ReviewController.index);
 routes.get('/review/:id/:page/:limit', ReviewController.getMany);
 routes.post('/review', authMiddleware, ReviewController.create);
 routes.put('/review', authMiddleware, ReviewController.update);
+routes.delete('/review/:id', authMiddleware, ReviewController.delete);
 
 export default routes;
