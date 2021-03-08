@@ -1,11 +1,13 @@
+import { getRepository } from 'typeorm';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
+import User from '../models/User';
 import authConfig from '../config/auth';
 
-const authMiddleware = async (
+const adminMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction,
@@ -32,10 +34,25 @@ const authMiddleware = async (
     );
     req.userId = decoded.id;
 
+    const usersRepository = getRepository(User);
+    const user = await usersRepository.findOne({
+      where: { id: decoded.id },
+    });
+
+    if (!user) {
+      return res.status(401).json({ error: 'User not found' });
+    }
+
+    if (!user.isAdmin) {
+      return res
+        .status(401)
+        .json({ error: 'Only an admin can create another admin' });
+    }
+
     next();
   } catch (err) {
     return res.status(401).json({ error: 'Invalid token' });
   }
 };
 
-export default authMiddleware;
+export default adminMiddleware;

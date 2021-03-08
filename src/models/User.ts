@@ -31,6 +31,9 @@ export default class User {
   })
   password: string;
 
+  @Column({ name: 'is_admin', type: 'boolean' })
+  isAdmin: boolean;
+
   @OneToMany(() => Recipe, recipe => recipe.user)
   recipes?: Recipe[];
 
