@@ -29,7 +29,8 @@ routes.put(
 );
 
 // admin
-routes.post('/user/admin', adminMiddleware, AdminController.create);
+routes.put('/user/admin', adminMiddleware, AdminController.create);
+routes.put('/user/admin/remove', adminMiddleware, AdminController.delete);
 
 // recipe
 routes.get('/recipe/:id', RecipeController.index);
