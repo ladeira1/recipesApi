@@ -10,6 +10,8 @@ import ReviewController from './controllers/ReviewController';
 import FavoriteController from './controllers/FavoriteController';
 
 import authMiddleware from './middlewares/auth';
+import adminMiddleware from './middlewares/admin';
+import AdminController from './controllers/AdminController';
 
 const routes = Router();
 const upload = multer(uploadConfig);
@@ -25,6 +27,10 @@ routes.put(
   upload.single('image'),
   UserController.update,
 );
+
+// admin
+routes.put('/user/admin', adminMiddleware, AdminController.create);
+routes.put('/user/admin/remove', adminMiddleware, AdminController.delete);
 
 // recipe
 routes.get('/recipe/:id', RecipeController.index);

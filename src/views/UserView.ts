@@ -8,6 +8,7 @@ interface UserResponse {
   email: string;
   token?: string;
   imageUrl: string | null;
+  isAdmin?: boolean;
 }
 
 export default class UserView extends DefaultView {
@@ -27,6 +28,16 @@ export default class UserView extends DefaultView {
       email: user.email,
       token,
       imageUrl: getImageUrl(user.profileImageUrl),
+    };
+  }
+
+  static renderAdmin(user: User): UserResponse {
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      imageUrl: getImageUrl(user.profileImageUrl),
+      isAdmin: user.isAdmin,
     };
   }
 }

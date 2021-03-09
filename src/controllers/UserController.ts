@@ -48,6 +48,7 @@ export default class UserController {
         name,
         email,
         password,
+        isAdmin: false,
       });
 
       user.hashPassword(password);
