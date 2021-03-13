@@ -7,6 +7,7 @@ import connection from '../src/database/connection';
 
 import User from '../src/models/User';
 import Recipe from '../src/models/Recipe';
+import createAdminUser from './utils/createAdminUser';
 
 jest.setTimeout(30000);
 
@@ -14,6 +15,7 @@ describe('Testing create UserRating', () => {
   const filePath = `${__dirname}/test-image/test.jpg`;
   let token: string;
   let recipeId: number;
+  let categoryId: number;
 
   beforeAll(async done => {
     await createTypeormConnection();
@@ -25,14 +27,15 @@ describe('Testing create UserRating', () => {
     await connection.clear(Recipe);
     await connection.clear(UserRating);
 
-    const userResponse = await request(app).post('/user').send({
-      name: 'joao',
-      email: 'joao@test.com',
-      password: '123123',
-      passwordConfirmation: '123123',
-    });
+    token = await createAdminUser();
 
-    token = userResponse.body.token;
+    const category = await request(app)
+      .post('/category')
+      .field('name', 'test name')
+      .attach('image', filePath)
+      .set('Authorization', `Bearer ${token}`);
+
+    categoryId = category.body.id;
 
     const recipeResponse = await request(app)
       .post('/recipe')
@@ -42,12 +45,15 @@ describe('Testing create UserRating', () => {
       .field('preparationTime', 40)
       .field('serves', 2)
       .field('steps', 'first step, second step, third last, last step')
+      .field('categoryId', categoryId)
       .attach('image', filePath)
       .set('Authorization', `Bearer ${token}`);
 
     recipeId = recipeResponse.body.id;
+
+    recipeId = recipeResponse.body.id;
     // forcing it to wait until transaction is done
-    setTimeout(() => done(), 3000);
+    setTimeout(() => done(), 1000);
   });
 
   afterAll(async done => {
@@ -154,6 +160,7 @@ describe('Testing get UserRating', () => {
   let token: string;
   let recipeId: number;
   let ratingId: number;
+  let categoryId: number;
 
   beforeAll(async done => {
     await createTypeormConnection();
@@ -165,14 +172,15 @@ describe('Testing get UserRating', () => {
     await connection.clear(Recipe);
     await connection.clear(UserRating);
 
-    const userResponse = await request(app).post('/user').send({
-      name: 'joao',
-      email: 'joao@test.com',
-      password: '123123',
-      passwordConfirmation: '123123',
-    });
+    token = await createAdminUser();
 
-    token = userResponse.body.token;
+    const category = await request(app)
+      .post('/category')
+      .field('name', 'test name')
+      .attach('image', filePath)
+      .set('Authorization', `Bearer ${token}`);
+
+    categoryId = category.body.id;
 
     const recipeResponse = await request(app)
       .post('/recipe')
@@ -182,10 +190,12 @@ describe('Testing get UserRating', () => {
       .field('preparationTime', 40)
       .field('serves', 2)
       .field('steps', 'first step, second step, third last, last step')
+      .field('categoryId', categoryId)
       .attach('image', filePath)
       .set('Authorization', `Bearer ${token}`);
 
     recipeId = recipeResponse.body.id;
+
     // forcing it to wait until transaction is done
     setTimeout(async () => {
       const ratingResponse = await request(app)
@@ -196,8 +206,8 @@ describe('Testing get UserRating', () => {
       setTimeout(() => {
         ratingId = ratingResponse.body.id;
         done();
-      }, 2000);
-    }, 2000);
+      }, 1000);
+    }, 1000);
   });
 
   afterAll(async done => {
@@ -244,6 +254,7 @@ describe('Testing update UserRating', () => {
   let token: string;
   let recipeId: number;
   let ratingId: number;
+  let categoryId: number;
 
   beforeAll(async done => {
     await createTypeormConnection();
@@ -255,14 +266,15 @@ describe('Testing update UserRating', () => {
     await connection.clear(Recipe);
     await connection.clear(UserRating);
 
-    const userResponse = await request(app).post('/user').send({
-      name: 'joao',
-      email: 'joao@test.com',
-      password: '123123',
-      passwordConfirmation: '123123',
-    });
+    token = await createAdminUser();
 
-    token = userResponse.body.token;
+    const category = await request(app)
+      .post('/category')
+      .field('name', 'test name')
+      .attach('image', filePath)
+      .set('Authorization', `Bearer ${token}`);
+
+    categoryId = category.body.id;
 
     const recipeResponse = await request(app)
       .post('/recipe')
@@ -272,8 +284,11 @@ describe('Testing update UserRating', () => {
       .field('preparationTime', 40)
       .field('serves', 2)
       .field('steps', 'first step, second step, third last, last step')
+      .field('categoryId', categoryId)
       .attach('image', filePath)
       .set('Authorization', `Bearer ${token}`);
+
+    recipeId = recipeResponse.body.id;
 
     recipeId = recipeResponse.body.id;
     // forcing it to wait until transaction is done
@@ -335,6 +350,7 @@ describe('Testing delete UserRating', () => {
   let token: string;
   let recipeId: number;
   let ratingId: number;
+  let categoryId: number;
 
   beforeAll(async done => {
     await createTypeormConnection();
@@ -346,14 +362,15 @@ describe('Testing delete UserRating', () => {
     await connection.clear(Recipe);
     await connection.clear(UserRating);
 
-    const userResponse = await request(app).post('/user').send({
-      name: 'joao',
-      email: 'joao@test.com',
-      password: '123123',
-      passwordConfirmation: '123123',
-    });
+    token = await createAdminUser();
 
-    token = userResponse.body.token;
+    const category = await request(app)
+      .post('/category')
+      .field('name', 'test name')
+      .attach('image', filePath)
+      .set('Authorization', `Bearer ${token}`);
+
+    categoryId = category.body.id;
 
     const recipeResponse = await request(app)
       .post('/recipe')
@@ -363,10 +380,12 @@ describe('Testing delete UserRating', () => {
       .field('preparationTime', 40)
       .field('serves', 2)
       .field('steps', 'first step, second step, third last, last step')
+      .field('categoryId', categoryId)
       .attach('image', filePath)
       .set('Authorization', `Bearer ${token}`);
 
     recipeId = recipeResponse.body.id;
+
     // forcing it to wait until transaction is done
     setTimeout(async () => {
       const ratingResponse = await request(app)
@@ -377,8 +396,8 @@ describe('Testing delete UserRating', () => {
       setTimeout(async () => {
         ratingId = ratingResponse.body.id;
         done();
-      }, 4000);
-    }, 4000);
+      }, 1000);
+    }, 1000);
   });
 
   afterAll(async done => {

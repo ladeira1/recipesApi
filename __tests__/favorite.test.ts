@@ -7,6 +7,7 @@ import connection from '../src/database/connection';
 
 import User from '../src/models/User';
 import Recipe from '../src/models/Recipe';
+import createAdminUser from './utils/createAdminUser';
 
 jest.setTimeout(30000);
 
@@ -14,6 +15,7 @@ describe('Testing create Favorite', () => {
   const filePath = `${__dirname}/test-image/test.jpg`;
   let token: string;
   let recipeId: number;
+  let categoryId: number;
 
   beforeAll(async done => {
     await createTypeormConnection();
@@ -25,14 +27,15 @@ describe('Testing create Favorite', () => {
     await connection.clear(Recipe);
     await connection.clear(UserRating);
 
-    const userResponse = await request(app).post('/user').send({
-      name: 'joao',
-      email: 'joao@test.com',
-      password: '123123',
-      passwordConfirmation: '123123',
-    });
+    token = await createAdminUser();
 
-    token = userResponse.body.token;
+    const category = await request(app)
+      .post('/category')
+      .field('name', 'test name')
+      .attach('image', filePath)
+      .set('Authorization', `Bearer ${token}`);
+
+    categoryId = category.body.id;
 
     const recipeResponse = await request(app)
       .post('/recipe')
@@ -42,12 +45,15 @@ describe('Testing create Favorite', () => {
       .field('preparationTime', 40)
       .field('serves', 2)
       .field('steps', 'first step, second step, third last, last step')
+      .field('categoryId', categoryId)
       .attach('image', filePath)
       .set('Authorization', `Bearer ${token}`);
 
     recipeId = recipeResponse.body.id;
+
+    recipeId = recipeResponse.body.id;
     // forcing it to wait until transaction is done
-    setTimeout(() => done(), 3000);
+    setTimeout(() => done(), 1000);
   });
 
   afterAll(async done => {
@@ -91,6 +97,7 @@ describe('Testing get Favorite', () => {
   const filePath = `${__dirname}/test-image/test.jpg`;
   let token: string;
   let recipeId: number;
+  let categoryId: number;
 
   beforeAll(async done => {
     await createTypeormConnection();
@@ -102,14 +109,15 @@ describe('Testing get Favorite', () => {
     await connection.clear(Recipe);
     await connection.clear(UserRating);
 
-    const userResponse = await request(app).post('/user').send({
-      name: 'joao',
-      email: 'joao@test.com',
-      password: '123123',
-      passwordConfirmation: '123123',
-    });
+    token = await createAdminUser();
 
-    token = userResponse.body.token;
+    const category = await request(app)
+      .post('/category')
+      .field('name', 'test name')
+      .attach('image', filePath)
+      .set('Authorization', `Bearer ${token}`);
+
+    categoryId = category.body.id;
 
     const recipeResponse = await request(app)
       .post('/recipe')
@@ -119,10 +127,12 @@ describe('Testing get Favorite', () => {
       .field('preparationTime', 40)
       .field('serves', 2)
       .field('steps', 'first step, second step, third last, last step')
+      .field('categoryId', categoryId)
       .attach('image', filePath)
       .set('Authorization', `Bearer ${token}`);
 
     recipeId = recipeResponse.body.id;
+
     // forcing it to wait until transaction is done
     setTimeout(async () => {
       await request(app)
@@ -131,7 +141,7 @@ describe('Testing get Favorite', () => {
         .set('Authorization', `Bearer ${token}`);
 
       done();
-    }, 3000);
+    }, 1000);
   });
 
   afterAll(async done => {
@@ -175,6 +185,7 @@ describe('Testing update Favorite', () => {
   let token: string;
   let recipeId: number;
   let favoriteId: number;
+  let categoryId: number;
 
   beforeAll(async done => {
     await createTypeormConnection();
@@ -186,14 +197,15 @@ describe('Testing update Favorite', () => {
     await connection.clear(Recipe);
     await connection.clear(UserRating);
 
-    const userResponse = await request(app).post('/user').send({
-      name: 'joao',
-      email: 'joao@test.com',
-      password: '123123',
-      passwordConfirmation: '123123',
-    });
+    token = await createAdminUser();
 
-    token = userResponse.body.token;
+    const category = await request(app)
+      .post('/category')
+      .field('name', 'test name')
+      .attach('image', filePath)
+      .set('Authorization', `Bearer ${token}`);
+
+    categoryId = category.body.id;
 
     const recipeResponse = await request(app)
       .post('/recipe')
@@ -203,6 +215,7 @@ describe('Testing update Favorite', () => {
       .field('preparationTime', 40)
       .field('serves', 2)
       .field('steps', 'first step, second step, third last, last step')
+      .field('categoryId', categoryId)
       .attach('image', filePath)
       .set('Authorization', `Bearer ${token}`);
 
@@ -216,7 +229,7 @@ describe('Testing update Favorite', () => {
 
       favoriteId = response.body.id;
       done();
-    }, 3000);
+    }, 1000);
   });
 
   afterAll(async done => {
