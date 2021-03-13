@@ -4,11 +4,16 @@ import createTypeormConnection from '../src/utils/createTypeormConnection';
 import app from '../src/app';
 import connection from '../src/database/connection';
 
+import createAdminUser from './utils/createAdminUser';
+
 import User from '../src/models/User';
 import Recipe from '../src/models/Recipe';
+import Category from '../src/models/Category';
 
 describe('Testing create Recipe', () => {
   let token: string;
+  let categoryId: number;
+  let adminToken: string;
   const filePath = `${__dirname}/test-image/test.jpg`;
 
   beforeAll(async () => {
@@ -18,15 +23,25 @@ describe('Testing create Recipe', () => {
   beforeEach(async () => {
     await connection.clear(User);
     await connection.clear(Recipe);
+    await connection.clear(Category);
 
     const response = await request(app).post('/user').send({
-      name: 'joao',
-      email: 'joao@test.com',
+      name: 'test',
+      email: 'test@test.com',
       password: '123123',
       passwordConfirmation: '123123',
     });
 
     token = response.body.token;
+    adminToken = await createAdminUser();
+
+    const category = await request(app)
+      .post('/category')
+      .field('name', 'test name')
+      .attach('image', filePath)
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    categoryId = category.body.id;
   });
 
   afterAll(async () => {
@@ -42,6 +57,7 @@ describe('Testing create Recipe', () => {
       .field('preparationTime', 40)
       .field('serves', 2)
       .field('steps', 'first step, second step, third last, last step')
+      .field('categoryId', categoryId)
       .attach('image', filePath)
       .set('Authorization', `Bearer ${token}`);
 
@@ -54,7 +70,7 @@ describe('Testing create Recipe', () => {
       serves: '2',
       rating: 0,
       user: {
-        name: 'joao',
+        name: 'test',
         imageUrl: null,
       },
     });
@@ -67,7 +83,7 @@ describe('Testing create Recipe', () => {
 
     expect(response.status).toEqual(401);
     expect(response.text).toContain(
-      '[{"error":"Recipe name must be informed"},{"error":"Image must be added"},{"error":"The file is too large"},{"error":"Description must be informed"},{"error":"Ingredients must be informed"},{"error":"Preparation time must be informed"},{"error":"The amount of people it serves must be informed"},{"error":"Steps must be informed"}]',
+      '[{"error":"Recipe name must be informed"},{"error":"Image must be informed"},{"error":"The file is too large"},{"error":"Description must be informed"},{"error":"Ingredients must be informed"},{"error":"Preparation time must be informed"},{"error":"The amount of people it serves must be informed"},{"error":"Steps must be informed"},{"error":"Category must be informed"}]',
     );
   });
 
@@ -93,6 +109,8 @@ describe('Testing get Recipe', () => {
   const filePath = `${__dirname}/test-image/test.jpg`;
   let token: string;
   let recipeId: number;
+  let adminToken: string;
+  let categoryId: number;
 
   beforeAll(async done => {
     await createTypeormConnection();
@@ -104,13 +122,23 @@ describe('Testing get Recipe', () => {
     await connection.clear(Recipe);
 
     const userResponse = await request(app).post('/user').send({
-      name: 'joao',
-      email: 'joao@test.com',
+      name: 'test',
+      email: 'test@test.com',
       password: '123123',
       passwordConfirmation: '123123',
     });
 
     token = userResponse.body.token;
+
+    adminToken = await createAdminUser();
+
+    const category = await request(app)
+      .post('/category')
+      .field('name', 'test name')
+      .attach('image', filePath)
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    categoryId = category.body.id;
 
     const recipeResponse = await request(app)
       .post('/recipe')
@@ -120,12 +148,13 @@ describe('Testing get Recipe', () => {
       .field('preparationTime', 40)
       .field('serves', 2)
       .field('steps', 'first step, second step, third last, last step')
+      .field('categoryId', categoryId)
       .attach('image', filePath)
       .set('Authorization', `Bearer ${token}`);
 
     recipeId = recipeResponse.body.id;
     // forcing it to wait until transaction is done
-    setTimeout(() => done(), 1500);
+    setTimeout(() => done(), 1000);
   });
 
   afterAll(async done => {
@@ -189,6 +218,8 @@ describe('testing delete Recipe', () => {
   const filePath = `${__dirname}/test-image/test.jpg`;
   let token: string;
   let recipeId: number;
+  let adminToken: string;
+  let categoryId: number;
 
   beforeAll(async done => {
     await createTypeormConnection();
@@ -200,13 +231,23 @@ describe('testing delete Recipe', () => {
     await connection.clear(Recipe);
 
     const userResponse = await request(app).post('/user').send({
-      name: 'joao',
-      email: 'joao@test.com',
+      name: 'test',
+      email: 'test@test.com',
       password: '123123',
       passwordConfirmation: '123123',
     });
 
     token = userResponse.body.token;
+
+    adminToken = await createAdminUser();
+
+    const category = await request(app)
+      .post('/category')
+      .field('name', 'test name')
+      .attach('image', filePath)
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    categoryId = category.body.id;
 
     const recipeResponse = await request(app)
       .post('/recipe')
@@ -216,12 +257,13 @@ describe('testing delete Recipe', () => {
       .field('preparationTime', 40)
       .field('serves', 2)
       .field('steps', 'first step, second step, third step')
+      .field('categoryId', categoryId)
       .attach('image', filePath)
       .set('Authorization', `Bearer ${token}`);
 
     recipeId = recipeResponse.body.id;
     // forcing it to wait until transaction is done
-    setTimeout(() => done(), 1500);
+    setTimeout(() => done(), 1000);
   });
 
   afterAll(async done => {
@@ -280,6 +322,8 @@ describe('testing update Recipe', () => {
   const filePath = `${__dirname}/test-image/test.jpg`;
   let token: string;
   let recipeId: number;
+  let adminToken: string;
+  let categoryId: number;
 
   beforeAll(async done => {
     await createTypeormConnection();
@@ -291,13 +335,23 @@ describe('testing update Recipe', () => {
     await connection.clear(Recipe);
 
     const userResponse = await request(app).post('/user').send({
-      name: 'joao',
-      email: 'joao@test.com',
+      name: 'test',
+      email: 'test@test.com',
       password: '123123',
       passwordConfirmation: '123123',
     });
 
     token = userResponse.body.token;
+
+    adminToken = await createAdminUser();
+
+    const category = await request(app)
+      .post('/category')
+      .field('name', 'test name')
+      .attach('image', filePath)
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    categoryId = category.body.id;
 
     const recipeResponse = await request(app)
       .post('/recipe')
@@ -307,12 +361,13 @@ describe('testing update Recipe', () => {
       .field('preparationTime', 40)
       .field('serves', 2)
       .field('steps', 'first step, second step, third step')
+      .field('categoryId', categoryId)
       .attach('image', filePath)
       .set('Authorization', `Bearer ${token}`);
 
     recipeId = recipeResponse.body.id;
     // forcing it to wait until transaction is done
-    setTimeout(() => done(), 1500);
+    setTimeout(() => done(), 1000);
   });
 
   afterAll(async done => {
@@ -330,6 +385,7 @@ describe('testing update Recipe', () => {
       .field('preparationTime', 10)
       .field('serves', 4)
       .field('steps', 'first step, second step, third last, last step')
+      .field('categoryId', categoryId)
       .attach('image', filePath)
       .set('Authorization', `Bearer ${token}`);
 

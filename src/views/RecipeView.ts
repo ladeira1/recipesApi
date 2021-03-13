@@ -16,6 +16,7 @@ interface RecipeResponse {
     name: string;
     imageUrl: string | null;
   };
+  category: string;
 }
 
 interface GeneralRecipeResponse {
@@ -24,6 +25,7 @@ interface GeneralRecipeResponse {
   imageUrl: string | null;
   description: string;
   rating: number;
+  category: string;
 }
 
 interface ManyRecipesResponse {
@@ -47,6 +49,7 @@ export default class RecipeView extends DefaultView {
         name: recipe.user.name,
         imageUrl: getImageUrl(recipe.user.profileImageUrl),
       },
+      category: recipe.category.name,
     };
   }
 
@@ -57,6 +60,7 @@ export default class RecipeView extends DefaultView {
       imageUrl: getImageUrl(recipe.imageUrl),
       description: recipe.description,
       rating: Number(recipe.rating),
+      category: recipe.category.name,
     };
   }
 

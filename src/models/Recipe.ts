@@ -8,6 +8,7 @@ import {
   Unique,
   OneToMany,
 } from 'typeorm';
+import Category from './Category';
 import Favorite from './Favorite';
 import Review from './Review';
 
@@ -62,4 +63,10 @@ export default class Recipe {
 
   @OneToMany(() => Favorite, favorite => favorite.recipe)
   favorites: Favorite[];
+
+  @ManyToOne(() => Category, category => category.recipes, {
+    onDelete: 'CASCADE',
+    eager: true,
+  })
+  category: Category;
 }

@@ -46,7 +46,7 @@ const adminMiddleware = async (
     if (!user.isAdmin) {
       return res
         .status(401)
-        .json({ error: 'Only an admin can edit another admin' });
+        .json({ error: 'Only an admin can perform this action' });
     }
 
     next();

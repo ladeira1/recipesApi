@@ -4,17 +4,18 @@ import * as Yup from 'yup';
 import { fs } from 'mz';
 import path from 'path';
 
+import Category from '../models/Category';
 import User from '../models/User';
 import Recipe from '../models/Recipe';
 import RecipeView from '../views/RecipeView';
 
-type TemplateTypes = 'recent' | 'top' | 'name';
+type TemplateTypes = 'recent' | 'top' | 'name' | 'category';
 
 const getTemplate = async (
   req: Request,
   res: Response,
   type: TemplateTypes,
-  name?: string,
+  data?: string,
 ): Promise<Response> => {
   const page = Number(req.params.page);
   const limit = Number(req.params.limit);
@@ -22,10 +23,13 @@ const getTemplate = async (
   const schema = Yup.object().shape({
     page: Yup.number().required('Page must be informed'),
     limit: Yup.number().required('Limit must be informed'),
-    name: Yup.string(),
+    data:
+      type === 'category'
+        ? Yup.number().required('Category must be informed')
+        : Yup.string(),
   });
   // validate request data
-  const validationValues = { page, limit, name };
+  const validationValues = { page, limit, data };
 
   if (!(await schema.isValid(validationValues))) {
     const validation = await schema
@@ -69,7 +73,27 @@ const getTemplate = async (
           skip: startIndex,
           take: limit,
           where: {
-            name: Like(`%${name}%`),
+            name: Like(`%${data}%`),
+          },
+        });
+        break;
+      }
+      case 'category': {
+        const categoriesRepository = getRepository(Category);
+        const category = await categoriesRepository.findOne({
+          where: { id: data },
+        });
+
+        if (!category) {
+          return res.status(401).json(RecipeView.error('Category not found'));
+        }
+
+        recipes = await recipesRepository.find({
+          order: { rating: 'DESC', createdAt: 'DESC' },
+          skip: startIndex,
+          take: limit,
+          where: {
+            category,
           },
         });
         break;
@@ -103,13 +127,14 @@ export default class RecipeController {
       preparationTime,
       serves,
       steps,
+      categoryId,
     } = req.body;
     const image = req.file;
 
     const schema = Yup.object().shape({
       name: Yup.string().required('Recipe name must be informed'),
       image: Yup.mixed()
-        .required('Image must be added')
+        .required('Image must be informed')
         .test('fileSize', 'The file is too large', value => {
           if (value === undefined) return false;
           if (!value.length) return true;
@@ -124,6 +149,7 @@ export default class RecipeController {
         'The amount of people it serves must be informed',
       ),
       steps: Yup.string().required('Steps must be informed'),
+      categoryId: Yup.number().required('Category must be informed'),
     });
 
     // validate request data
@@ -135,6 +161,7 @@ export default class RecipeController {
       preparationTime,
       serves,
       steps,
+      categoryId,
     };
 
     if (!(await schema.isValid(validationValues))) {
@@ -161,6 +188,15 @@ export default class RecipeController {
         return res.status(401).json(RecipeView.error('User not found'));
       }
 
+      const categoriesRepository = getRepository(Category);
+      const category = await categoriesRepository.findOne({
+        where: { id: categoryId },
+      });
+
+      if (!category) {
+        return res.status(401).json(RecipeView.error('Category not found'));
+      }
+
       const recipesRepository = getRepository(Recipe);
       const recipe = recipesRepository.create({
         name,
@@ -173,6 +209,7 @@ export default class RecipeController {
         rating: 0,
         createdAt: new Date(),
         user,
+        category,
       });
 
       await recipesRepository.save(recipe);
@@ -208,6 +245,12 @@ export default class RecipeController {
   static getByName = async (req: Request, res: Response): Promise<Response> =>
     getTemplate(req, res, 'name', req.body.name);
 
+  static getByCategory = async (
+    req: Request,
+    res: Response,
+  ): Promise<Response> =>
+    getTemplate(req, res, 'category', req.body.categoryId);
+
   static update = async (req: Request, res: Response): Promise<Response> => {
     const {
       id,
@@ -217,6 +260,7 @@ export default class RecipeController {
       preparationTime,
       serves,
       steps,
+      categoryId,
     } = req.body;
     const image = req.file;
 
@@ -234,12 +278,8 @@ export default class RecipeController {
       ingredients: Yup.string().nullable(),
       preparationTime: Yup.number().nullable(),
       serves: Yup.number().nullable(),
-      steps: Yup.array(
-        Yup.object().shape({
-          id: Yup.number().required(),
-          content: Yup.string().required(),
-        }),
-      ).nullable(),
+      steps: Yup.string().nullable(),
+      categoryId: Yup.number().nullable(),
     });
     // validate request data
     const validationValues = {
@@ -311,6 +351,19 @@ export default class RecipeController {
 
       if (serves) {
         recipe.serves = Number(serves);
+      }
+
+      if (categoryId !== recipe.category.id) {
+        const categoriesRepository = getRepository(Category);
+        const newCategory = await categoriesRepository.findOne({
+          where: { id: categoryId },
+        });
+
+        if (!newCategory) {
+          return res.status(401).json(RecipeView.error('Category not found'));
+        }
+
+        recipe.category = newCategory;
       }
 
       await recipesRepository.save(recipe);

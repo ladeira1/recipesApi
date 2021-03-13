@@ -1,6 +1,5 @@
 import request from 'supertest';
-import { getRepository } from 'typeorm';
-import getToken from '../src/utils/getToken';
+import createAdminUser from './utils/createAdminUser';
 import createTypeormConnection from '../src/utils/createTypeormConnection';
 import app from '../src/app';
 import connection from '../src/database/connection';
@@ -11,28 +10,6 @@ const newUser = {
   email: 'newAdmin@test.com',
   password: '123123',
   passwordConfirmation: '123123',
-};
-
-const createAdminUser = async () => {
-  const adminUser = {
-    name: 'joao',
-    email: 'joao@test.com',
-    password: '123123',
-    passwordConfirmation: '123123',
-  };
-
-  const usersRepository = getRepository(User);
-  const user = usersRepository.create({
-    name: adminUser.name,
-    email: adminUser.email,
-    password: adminUser.password,
-    isAdmin: true,
-  });
-
-  user.hashPassword(adminUser.password);
-  await usersRepository.save(user);
-
-  return getToken(user.id);
 };
 
 describe('Testing create admin user', () => {
@@ -81,7 +58,7 @@ describe('Testing create admin user', () => {
 
     expect(response.status).toBe(401);
     expect(response.body).toMatchObject({
-      error: 'Only an admin can edit another admin',
+      error: 'Only an admin can perform this action',
     });
     done();
   });
@@ -93,7 +70,7 @@ describe('Testing create admin user', () => {
 
     expect(response.status).toBe(401);
     expect(response.body).toMatchObject({
-      error: 'Only an admin can edit another admin',
+      error: 'Only an admin can perform this action',
     });
     done();
   });
@@ -109,7 +86,7 @@ describe('Testing create admin user', () => {
   });
 });
 
-describe('Testing create admin user', () => {
+describe('Testing delete admin user', () => {
   let token: string;
   let id: string;
   let notAdminToken: string;
@@ -166,7 +143,7 @@ describe('Testing create admin user', () => {
 
     expect(response.status).toBe(401);
     expect(response.body).toMatchObject({
-      error: 'Only an admin can edit another admin',
+      error: 'Only an admin can perform this action',
     });
     done();
   });
