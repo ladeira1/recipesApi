@@ -34,20 +34,31 @@ routes.put('/user/admin', adminMiddleware, AdminController.create);
 routes.put('/user/admin/remove', adminMiddleware, AdminController.delete);
 
 // category
-routes.get('/categories/:id', CategoryController.index);
-routes.get('/categories/:page/:limit', CategoryController.getMany);
+routes.get('/category/:id', CategoryController.index);
+routes.get('/category/:page/:limit', CategoryController.getMany);
 routes.post(
   '/category',
   adminMiddleware,
   upload.single('image'),
   CategoryController.create,
 );
+routes.put(
+  '/category',
+  adminMiddleware,
+  upload.single('image'),
+  CategoryController.update,
+);
+routes.delete('/category/:id', adminMiddleware, CategoryController.delete);
 
 // recipe
 routes.get('/recipe/:id', RecipeController.index);
 routes.get('/recipe/recent/:page/:limit', RecipeController.getRecent);
 routes.get('/recipe/top/:page/:limit', RecipeController.getTopRated);
 routes.get('/recipe/name/:page/:limit', RecipeController.getByName);
+routes.get(
+  '/recipe/category/:page/:limit/:categoryId',
+  RecipeController.getByCategory,
+);
 routes.post(
   '/recipe',
   authMiddleware,

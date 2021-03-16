@@ -111,7 +111,7 @@ export default class CategoryController {
       const startIndex = (page - 1) * limit;
       const categoriesRepository = getRepository(Category);
       const categories = await categoriesRepository.find({
-        order: {  name: 'ASC', id: 'ASC' },
+        order: { name: 'ASC', id: 'ASC' },
         skip: startIndex,
         take: limit,
       });
@@ -135,15 +135,16 @@ export default class CategoryController {
   };
 
   static update = async (req: Request, res: Response): Promise<Response> => {
-    const { id, content } = req.body;
+    const { id, name } = req.body;
+    const image = req.file;
 
     const schema = Yup.object().shape({
-      id: Yup.number().required('Review must be informed'),
-      content: Yup.string().required('Review content must be informed'),
+      id: Yup.number().required('Category must be informed'),
+      name: Yup.string().nullable(),
     });
 
     // validate request data
-    const validationValues = { id, content };
+    const validationValues = { id, name };
 
     if (!(await schema.isValid(validationValues))) {
       const validation = await schema
@@ -157,7 +158,7 @@ export default class CategoryController {
           return errors;
         });
 
-      return res.status(401).json(ReviewView.manyErrors(validation));
+      return res.status(401).json(CategoryView.manyErrors(validation));
     }
 
     try {
@@ -165,24 +166,30 @@ export default class CategoryController {
       const user = await usersRepository.findOne({ where: { id: req.userId } });
 
       if (!user) {
-        return res.status(401).json(ReviewView.error('User not found'));
+        return res.status(401).json(CategoryView.error('User not found'));
       }
 
-      const reviewsRepository = getRepository(Review);
-      const review = await reviewsRepository.findOne({
-        where: { user, id },
+      const categoriesRepository = getRepository(Category);
+      const category = await categoriesRepository.findOne({
+        where: { id },
       });
 
-      if (!review) {
-        return res.status(401).json(ReviewView.error('Review not found'));
+      if (!category) {
+        return res.status(401).json(CategoryView.error('Category not found'));
       }
 
-      review.content = content;
+      if (name !== category.name) {
+        category.name = name;
+      }
 
-      await reviewsRepository.save(review);
-      return res.status(200).json(ReviewView.render(review));
+      if (image && image.filename !== category.imageUrl) {
+        category.imageUrl = image.filename;
+      }
+
+      await categoriesRepository.save(category);
+      return res.status(200).json(CategoryView.render(category));
     } catch (err) {
-      return res.status(401).json(ReviewView.error(err.message));
+      return res.status(401).json(CategoryView.error(err.message));
     }
   };
 
@@ -194,20 +201,20 @@ export default class CategoryController {
       const user = await usersRepository.findOne({ where: { id: req.userId } });
 
       if (!user) {
-        return res.status(401).json(ReviewView.error('User not found'));
+        return res.status(401).json(CategoryView.error('User not found'));
       }
 
-      const reviewsRepository = getRepository(Review);
-      const review = await reviewsRepository.findOne({ where: { id } });
+      const categoriesRepository = getRepository(Category);
+      const category = await categoriesRepository.findOne({ where: { id } });
 
-      if (!review) {
-        return res.status(401).json(ReviewView.error('Review not found'));
+      if (!category) {
+        return res.status(401).json(CategoryView.error('Category not found'));
       }
 
-      await reviewsRepository.delete(review);
+      await categoriesRepository.delete(category);
       return res.status(204).json();
     } catch (err) {
-      return res.status(401).json(ReviewView.error(err.message));
+      return res.status(401).json(CategoryView.error(err.message));
     }
   };
 }

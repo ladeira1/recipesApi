@@ -184,6 +184,16 @@ describe('Testing get Recipe', () => {
     done();
   });
 
+  it('should get top recipes', async done => {
+    const response = await request(app).get(
+      `/recipe/category/1/5/${categoryId}`,
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('test recipe');
+    done();
+  });
+
   it('should get a recipe', async done => {
     const response = await request(app).get(`/recipe/${recipeId}`);
 

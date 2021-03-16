@@ -249,7 +249,7 @@ export default class RecipeController {
     req: Request,
     res: Response,
   ): Promise<Response> =>
-    getTemplate(req, res, 'category', req.body.categoryId);
+    getTemplate(req, res, 'category', req.params.categoryId);
 
   static update = async (req: Request, res: Response): Promise<Response> => {
     const {
