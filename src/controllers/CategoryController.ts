@@ -67,21 +67,20 @@ export default class CategoryController {
     const { id } = req.params;
 
     try {
-      const reviewsRepository = getRepository(Review);
-      const review = await reviewsRepository.findOne({ where: { id } });
+      const categoriesRepository = getRepository(Category);
+      const category = await categoriesRepository.findOne({ where: { id } });
 
-      if (!review) {
-        return res.status(401).json(ReviewView.error('Review not found'));
+      if (!category) {
+        return res.status(401).json(CategoryView.error('Category not found'));
       }
 
-      return res.status(200).json(ReviewView.render(review));
+      return res.status(200).json(CategoryView.render(category));
     } catch (err) {
-      return res.status(401).json(ReviewView.error(err.message));
+      return res.status(401).json(CategoryView.error(err.message));
     }
   };
 
   static getMany = async (req: Request, res: Response): Promise<Response> => {
-    const { id } = req.params;
     const page = Number(req.params.page);
     const limit = Number(req.params.limit);
 
@@ -105,34 +104,33 @@ export default class CategoryController {
           return errors;
         });
 
-      return res.status(401).json(ReviewView.manyErrors(validation));
+      return res.status(401).json(CategoryView.manyErrors(validation));
     }
 
     try {
       const startIndex = (page - 1) * limit;
-      const reviewsRepository = getRepository(Review);
-      const reviews = await reviewsRepository.find({
-        where: { id },
-        order: { createdAt: 'ASC', id: 'ASC' },
+      const categoriesRepository = getRepository(Category);
+      const categories = await categoriesRepository.find({
+        order: {  name: 'ASC', id: 'ASC' },
         skip: startIndex,
         take: limit,
       });
 
-      if (!reviews || reviews.length === 0) {
-        return res.status(401).json(ReviewView.error('Review not found'));
+      if (!categories || categories.length === 0) {
+        return res.status(401).json(CategoryView.error('Category not found'));
       }
 
-      if (reviews.length < limit) {
+      if (categories.length < limit) {
         return res
           .status(200)
-          .json(ReviewView.renderMany(reviews, null, limit));
+          .json(CategoryView.renderMany(categories, null, limit));
       }
 
       return res
         .status(200)
-        .json(ReviewView.renderMany(reviews, page + 1, limit));
+        .json(CategoryView.renderMany(categories, page + 1, limit));
     } catch (err) {
-      return res.status(401).json(ReviewView.error(err.message));
+      return res.status(401).json(CategoryView.error(err.message));
     }
   };
 

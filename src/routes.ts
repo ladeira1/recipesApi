@@ -34,6 +34,8 @@ routes.put('/user/admin', adminMiddleware, AdminController.create);
 routes.put('/user/admin/remove', adminMiddleware, AdminController.delete);
 
 // category
+routes.get('/categories/:id', CategoryController.index);
+routes.get('/categories/:page/:limit', CategoryController.getMany);
 routes.post(
   '/category',
   adminMiddleware,

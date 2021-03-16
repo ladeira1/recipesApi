@@ -167,7 +167,7 @@ describe('Testing get Favorite', () => {
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(401);
-    expect(response.text).toContain('invalid input syntax for integer');
+    expect(response.text).toContain('invalid input syntax for type integer');
     done();
   });
 
